@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: LabelWriterDriver.cpp 7144 2009-02-11 20:37:02Z vbuzuev $
+// $Id: LabelWriterDriver.cpp 15934 2011-08-31 17:42:29Z pineichen $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -33,8 +33,8 @@ const byte SYN = 0x16;
 const byte ETB = 0x17;
 
 CLabelWriterDriver::CLabelWriterDriver(IPrintEnvironment& Environment):
-  Environment_(Environment), 
-  Density_(pdNormal), Quality_(pqText), PageHeight_(0x0800), PaperType_(ptRegular),
+  Environment_(Environment),
+  Resolution_(resUnknown), Density_(pdNormal), Quality_(pqText), PageHeight_(0x0800), PaperType_(ptRegular),
   MaxPrintWidth_(84),PageOffset_(0, 0),LastDotTab_(size_t(-1)), LastBytesPerLine_(size_t(-1)), EmptyLinesCount_(0)
 {
 }
@@ -42,23 +42,24 @@ CLabelWriterDriver::CLabelWriterDriver(IPrintEnvironment& Environment):
 CLabelWriterDriver::~CLabelWriterDriver()
 {
 }
-    
-void 
+
+void
 CLabelWriterDriver::StartDoc()
 {
   SendCommand(GetResetCommand());
+  SendResolution(Resolution_);
   SendLineTab(0);
   SendDotTab(0);
   SendPrintQuality(Quality_);
   SendPrintDensity(Density_);
 }
 
-void 
+void
 CLabelWriterDriver::EndDoc()
 {
 }
 
-void 
+void
 CLabelWriterDriver::StartPage()
 {
   switch (PaperType_)
@@ -70,9 +71,10 @@ CLabelWriterDriver::StartPage()
 
   LastDotTab_ = size_t(-1);
   LastBytesPerLine_ = size_t(-1);
+  EmptyLinesCount_ = 0;
 }
 
-void 
+void
 CLabelWriterDriver::EndPage()
 {
   SendFormFeed();
@@ -92,7 +94,7 @@ CLabelWriterDriver::SendNotCompressedData(
   {
     SendBytesPerLine(DataSize);
     LastBytesPerLine_ = DataSize;
-  }  
+  }
 
   SendCommand(&syn, sizeof(syn));
   SendCommand(&Buf[0] + LeaderBlanks, DataSize);
@@ -109,13 +111,13 @@ CLabelWriterDriver::SendCompressedData(
   {
     SendBytesPerLine(NotCompressedSize);
     LastBytesPerLine_ = NotCompressedSize;
-  }  
+  }
 
   SendCommand(&etb, sizeof(etb));
   SendCommand(&CompressedBuf[0], CompressedBuf.size());
 }
 
-void 
+void
 CLabelWriterDriver::GetBlanks(
   const buffer_t& Buf, size_t& LeaderBlanks, size_t& TrailerBlanks)
 {
@@ -126,37 +128,37 @@ CLabelWriterDriver::GetBlanks(
 
   size_t BufSize = Buf.size();
 
-  // count left spaces 
+  // count left spaces
   for (i = 0; i < BufSize; ++i)
     if (Buf[i] == 0)
       ++LeaderBlanks;
     else
-      break;  
+      break;
 
   if (i == BufSize) return;
 
-  // count right spaces 
+  // count right spaces
   for (i = BufSize - 1; i >= 0; --i)
     if (Buf[i] == 0)
       ++TrailerBlanks;
     else
-      break;  
+      break;
 } // GetBlanks()
 
 // bit numbers in byte
 // 7 6 5 4 3 2 1 0
-// msb           lsb 
+// msb           lsb
 
 // Returns Value of bit BitNo in byte Data
 // if bit unset returns 0, else - not 0
-static inline byte 
+static inline byte
 GetBitValue(byte data, size_t bitNo)
 {
   return data & (1 << bitNo);
 }
 
 // Advanses to one bit in byte sequence
-static inline void 
+static inline void
 NextBit(size_t& curByteNo, size_t& curBitNo)
 {
   if (curBitNo == 0)
@@ -171,7 +173,7 @@ NextBit(size_t& curByteNo, size_t& curBitNo)
 // Returns RLE compressed value for data in Data with size DataLen
 // start compression at CurByteNo/CurBitNo
 // At exit CureByteNo, CurBitNo contains next bit after compressed sequence
-static byte 
+static byte
 GetCompressedSequenceValue(const byte* data, size_t dataLen, size_t& curByteNo, size_t& curBitNo)
 {
   byte bitCount = 0;
@@ -197,7 +199,7 @@ GetCompressedSequenceValue(const byte* data, size_t dataLen, size_t& curByteNo, 
   if (startBitValue)
     return bitCount | 0x80; // set high bit for "black" pixels
   else
-    return bitCount;  
+    return bitCount;
 }
 
 static void
@@ -205,21 +207,21 @@ CompressData(buffer_t& CompressedData, const byte* Data, size_t DataSize)
 {
   size_t CurByteNo        = 0;
   size_t CurBitNo         = 7;
-  size_t CompressedOffset = 0; 
+  size_t CompressedOffset = 0;
 
   while (CurByteNo < DataSize)
   {
     if (CompressedOffset >= DataSize - 1)
     {
       CompressedData.clear(); // will write non-compressed data
-      return; 
+      return;
     }
     CompressedData.push_back(GetCompressedSequenceValue(Data, DataSize, CurByteNo, CurBitNo));
     ++CompressedOffset;
   }
 }
 
-static void 
+static void
 ShiftDataRight(const buffer_t& Buf, buffer_t& ShiftedBuf, size_t ShiftValue)
 {
   // shift bytes first
@@ -228,7 +230,7 @@ ShiftDataRight(const buffer_t& Buf, buffer_t& ShiftedBuf, size_t ShiftValue)
   ShiftValue   = ShiftValue % 8;
 
   if ((ShiftedLen <= 0) || (Buf.size() == 0)) return;
-  
+
   // shift bits
   ShiftedBuf[ShiftedOffset] = Buf[0] >> ShiftValue; // first
   size_t i = 0;
@@ -238,7 +240,7 @@ ShiftDataRight(const buffer_t& Buf, buffer_t& ShiftedBuf, size_t ShiftValue)
     ShiftedBuf[ShiftedOffset + Buf.size()] = (Buf[Buf.size() - 1] << (8 - ShiftValue));
 }
 
-static void 
+static void
 ShiftDataLeft(const buffer_t& Buf, buffer_t& ShiftedBuf, size_t ShiftValue)
 {
   // shift bytes first
@@ -246,7 +248,7 @@ ShiftDataLeft(const buffer_t& Buf, buffer_t& ShiftedBuf, size_t ShiftValue)
   ShiftValue   = ShiftValue % 8;
 
   if ((ShiftedLen <= 0) || (Buf.size() == 0)) return;
-  
+
   // shift bits
   size_t i = 0;
   for (i = 0; ((i < Buf.size() - 1) && (i < size_t(ShiftedLen))); ++i)
@@ -256,7 +258,7 @@ ShiftDataLeft(const buffer_t& Buf, buffer_t& ShiftedBuf, size_t ShiftValue)
 }
 
 
-static void 
+static void
 ShiftData(const buffer_t& Buf, buffer_t& ShiftedBuf, int ShiftValue)
 {
   // clear shift buffer first
@@ -269,7 +271,7 @@ ShiftData(const buffer_t& Buf, buffer_t& ShiftedBuf, int ShiftValue)
     ShiftDataLeft(Buf, ShiftedBuf, -ShiftValue);
 }
 
-void 
+void
 CLabelWriterDriver::ProcessRasterLine(const buffer_t& lineBuffer)
 {
   buffer_t b = lineBuffer;
@@ -280,7 +282,7 @@ CLabelWriterDriver::ProcessRasterLine(const buffer_t& lineBuffer)
     ShiftData(b, b2, PageOffset_.x);
     b = b2;
   }
-  
+
   if (b.size() > MaxPrintWidth_)
   {
     fputs("WARNING: CLabelWriterDriver::ProcessRasterLine(): page width is greater max page width, truncated\n", stderr);
@@ -289,7 +291,7 @@ CLabelWriterDriver::ProcessRasterLine(const buffer_t& lineBuffer)
 
   size_t LeaderBlanks = 0;
   size_t TrailerBlanks = 0;
-    
+
   // get blanks count
   GetBlanks(b, LeaderBlanks, TrailerBlanks);
 
@@ -303,15 +305,18 @@ CLabelWriterDriver::ProcessRasterLine(const buffer_t& lineBuffer)
     // skip empty lines
     if (EmptyLinesCount_)
       SendSkipLines(EmptyLinesCount_);
-            
+
     EmptyLinesCount_ = 0;
 
     // set dot tab
-    if (LastDotTab_ != LeaderBlanks)
-    {
+    // Bug Fix for DLS80AM-1421
+    // NOTE: an ESC B needs to be send for each raster line. Otherwise the LW 3xx series output
+    // will be distorted.
+    //if (LastDotTab_ != LeaderBlanks)
+    //{
       SendDotTab(LeaderBlanks);
       LastDotTab_ = LeaderBlanks;
-    }  
+    //}
 
     // calculate compressed data size
     buffer_t CompressedData;
@@ -320,10 +325,10 @@ CLabelWriterDriver::ProcessRasterLine(const buffer_t& lineBuffer)
     if ((CompressedData.size() > 0) && (CompressedData.size() < b.size() - LeaderBlanks - TrailerBlanks))
       SendCompressedData(CompressedData, b.size() - LeaderBlanks - TrailerBlanks);
     else
-      SendNotCompressedData(b, LeaderBlanks, TrailerBlanks); 
+      SendNotCompressedData(b, LeaderBlanks, TrailerBlanks);
   }
-  
-    
+
+
 }
 
 
@@ -339,19 +344,25 @@ CLabelWriterDriver::SendCommand(const buffer_t& Buf)
   Environment_.WriteData(Buf);
 }
 
-CLabelWriterDriver::density_t  
+CLabelWriterDriver::resolution_t
+CLabelWriterDriver::GetResolution()
+{
+  return Resolution_;
+}
+
+CLabelWriterDriver::density_t
 CLabelWriterDriver::GetDensity()
 {
   return Density_;
 }
 
-CLabelWriterDriver::quality_t   
+CLabelWriterDriver::quality_t
 CLabelWriterDriver::GetQuality()
 {
   return Quality_;
 }
 
-size_t   
+size_t
 CLabelWriterDriver::GetPageHeight()
 {
   return PageHeight_;
@@ -363,37 +374,43 @@ CLabelWriterDriver::GetPaperType()
   return PaperType_;
 }
 
-void        
+void
+CLabelWriterDriver::SetResolution(CLabelWriterDriver::resolution_t Value)
+{
+  Resolution_ = Value;
+}
+
+void
 CLabelWriterDriver::SetDensity(CLabelWriterDriver::density_t Value)
 {
   Density_ = Value;
 }
 
-void        
+void
 CLabelWriterDriver::SetQuality(CLabelWriterDriver::quality_t Value)
 {
   Quality_ = Value;
 }
 
-void        
+void
 CLabelWriterDriver::SetPageHeight(size_t Value)
 {
   PageHeight_ = Value;
 }
 
-void        
+void
 CLabelWriterDriver::SetPaperType(CLabelWriterDriver::paper_type_t Value)
 {
   PaperType_ = Value;
 }
 
-void        
+void
 CLabelWriterDriver::SetMaxPrintWidth(size_t Value)
 {
   MaxPrintWidth_ = Value;
 }
 
-void        
+void
 CLabelWriterDriver::SetPageOffset(point_t Value)
 {
   PageOffset_ = Value;
@@ -407,7 +424,7 @@ CLabelWriterDriver::SendLineTab(size_t Value)
   buf[3] = Value & 0xff;
 
   SendCommand(buf, sizeof(buf));
-}  
+}
 
 void
 CLabelWriterDriver::SendDotTab(size_t Value)
@@ -416,7 +433,7 @@ CLabelWriterDriver::SendDotTab(size_t Value)
   buf[2] = Value;
 
   SendCommand(buf, sizeof(buf));
-}  
+}
 
 void
 CLabelWriterDriver::SendFormFeed()
@@ -433,7 +450,7 @@ CLabelWriterDriver::SendBytesPerLine(size_t Value)
   buf[2] = Value;
 
   SendCommand(buf, sizeof(buf));
-}  
+}
 
 void
 CLabelWriterDriver::SendSkipLines(size_t Value)
@@ -442,7 +459,7 @@ CLabelWriterDriver::SendSkipLines(size_t Value)
 
   // a hardware can skip no more 255 lines at time
   byte buf[] = {ESC, 'f', 1, 0};
-            
+
   while (Value > 0)
   {
     if (Value > MAX_LINES)
@@ -454,11 +471,11 @@ CLabelWriterDriver::SendSkipLines(size_t Value)
     {
       buf[3] = Value;
       Value  = 0;
-    }    
+    }
 
     SendCommand(buf, sizeof(buf));
   }
-} 
+}
 
 void
 CLabelWriterDriver::SendLabelLength(size_t Value)
@@ -468,7 +485,30 @@ CLabelWriterDriver::SendLabelLength(size_t Value)
   buf[3] = Value & 0xff;
 
   SendCommand(buf, sizeof(buf));
-}  
+}
+
+void
+CLabelWriterDriver::SendResolution(resolution_t Value)
+{
+  if (Value == resUnknown)
+    return;
+
+  byte buf[] = {ESC, 0};
+  switch (Value)
+  {
+    case res136:
+      buf[1] = 'z';
+      break;
+    case res204:
+      buf[1] = 'y';
+      break;
+    default:
+      assert(0);
+      break;
+  }
+
+  SendCommand(buf, sizeof(buf));
+}
 
 void
 CLabelWriterDriver::SendPrintDensity(density_t Value)
@@ -485,7 +525,7 @@ CLabelWriterDriver::SendPrintDensity(density_t Value)
   }
 
   SendCommand(buf, sizeof(buf));
-}  
+}
 
 void
 CLabelWriterDriver::SendPrintQuality(quality_t Value)
@@ -541,19 +581,19 @@ CLabelWriterDriver400::~CLabelWriterDriver400()
 {
 }
 
-void 
+void
 CLabelWriterDriver400::StartDoc()
 {
   CLabelWriterDriver::StartDoc();
 }
 
-void 
+void
 CLabelWriterDriver400::EndDoc()
 {
   SendFormFeed();
 }
 
-void 
+void
 CLabelWriterDriver400::EndPage()
 {
   SendShortFormFeed();
@@ -567,7 +607,7 @@ CLabelWriterDriver400::GetShortFormFeedCommand()
   return buffer_t(buf, buf + sizeof(buf));
 }
 
-void 
+void
 CLabelWriterDriver400::SendShortFormFeed()
 {
   byte buf[] = {ESC, 'G'};
@@ -588,20 +628,20 @@ CLabelWriterDriverTwinTurbo::~CLabelWriterDriverTwinTurbo()
 {
 }
 
-void 
+void
 CLabelWriterDriverTwinTurbo::StartDoc()
 {
   CLabelWriterDriver400::StartDoc();
   SendRollSelect(Roll_);
 }
 
-CLabelWriterDriverTwinTurbo::roll_t 
+CLabelWriterDriverTwinTurbo::roll_t
 CLabelWriterDriverTwinTurbo::GetRoll()
 {
   return Roll_;
 }
 
-void   
+void
 CLabelWriterDriverTwinTurbo::SetRoll(CLabelWriterDriverTwinTurbo::roll_t Value)
 {
   Roll_ = Value;
@@ -611,7 +651,7 @@ buffer_t
 CLabelWriterDriverTwinTurbo::GetRollSelectCommand(roll_t Value)
 {
   byte buf[] = {ESC, 'q', '0'};
-    
+
   switch (Value)
   {
     case rtLeft:    buf[2] = '1'; break;
@@ -622,11 +662,11 @@ CLabelWriterDriverTwinTurbo::GetRollSelectCommand(roll_t Value)
   return buffer_t(buf, buf + sizeof(buf));
 }
 
-void 
+void
 CLabelWriterDriverTwinTurbo::SendRollSelect(CLabelWriterDriverTwinTurbo::roll_t Value)
 {
   buffer_t buf = GetRollSelectCommand(Value);
-    
+
   SendCommand(&buf[0], buf.size());
 }
 
@@ -635,6 +675,5 @@ CLabelWriterDriverTwinTurbo::SendRollSelect(CLabelWriterDriverTwinTurbo::roll_t 
 }; // namespace
 
 /*
- * End of "$Id: LabelWriterDriver.cpp 7144 2009-02-11 20:37:02Z vbuzuev $".
+ * End of "$Id: LabelWriterDriver.cpp 15934 2011-08-31 17:42:29Z pineichen $".
  */
-

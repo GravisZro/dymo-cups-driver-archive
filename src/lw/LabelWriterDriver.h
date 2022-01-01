@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: LabelWriterDriver.h 7050 2009-02-07 00:06:12Z vbuzuev $
+// $Id: LabelWriterDriver.h 15964 2011-09-02 14:47:00Z pineichen $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -21,6 +21,7 @@
 #ifndef h53a93353_4968_443a_a5aa_1167526295fc
 #define h53a93353_4968_443a_a5aa_1167526295fc
 
+#include <stdlib.h>
 #include "PrinterDriver.h"
 
 namespace DymoPrinterDriver
@@ -53,6 +54,13 @@ public:
     ptContinuous
   } paper_type_t;
 
+  typedef enum
+  {
+    resUnknown = 0, // unknown or irrelevant resolution
+    res136, // 136x204 dpi (SE450)
+    res204  // 204x204 dpi (SE450)
+  } resolution_t;
+
   struct point_t
   {
     int x;
@@ -67,7 +75,7 @@ public:
 
   CLabelWriterDriver(IPrintEnvironment& Environment);
   virtual ~CLabelWriterDriver();
-    
+
   virtual void StartDoc();
   virtual void EndDoc();
 
@@ -76,17 +84,19 @@ public:
     
   virtual void ProcessRasterLine(const buffer_t& LineBuffer);
 
+  resolution_t GetResolution();
   density_t    GetDensity();
   quality_t    GetQuality();
   size_t       GetPageHeight();
   paper_type_t GetPaperType();
 
+  void         SetResolution   (resolution_t  Value);
   void         SetDensity      (density_t     Value);
   void         SetQuality      (quality_t     Value);
   void         SetPageHeight   (size_t        Value);
   void         SetPaperType    (paper_type_t  Value);
   void         SetMaxPrintWidth(size_t        Value);
-  void         SetPageOffset   (point_t        Value);
+  void         SetPageOffset   (point_t       Value);
 
   static buffer_t GetResetCommand();
   static buffer_t GetRequestStatusCommand();
@@ -102,7 +112,8 @@ protected:
   void SendLabelLength(size_t Value);
   void SendPrintQuality(quality_t Value);
   void SendPrintDensity(density_t Value);
-    
+  void SendResolution(resolution_t Value);
+
   void GetBlanks(const buffer_t& Buf, size_t& LeaderBlanks, size_t& TrailerBlanks);
   void SendNotCompressedData(const buffer_t& Buf, size_t LeaderBlanks, size_t TrailerBlanks);
   void SendCompressedData(const buffer_t& CompressedBuf, size_t NotCompressedSize);
@@ -115,6 +126,7 @@ protected:
 private:
   IPrintEnvironment& Environment_;
 
+  resolution_t Resolution_;
   density_t    Density_;
   quality_t    Quality_;
   size_t       PageHeight_;
@@ -175,5 +187,5 @@ private:
 #endif
 
 /*
- * End of "$Id: LabelWriterDriver.h 7050 2009-02-07 00:06:12Z vbuzuev $".
+ * End of "$Id: LabelWriterDriver.h 15964 2011-09-02 14:47:00Z pineichen $".
  */

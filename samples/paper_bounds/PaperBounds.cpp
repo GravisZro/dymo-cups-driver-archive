@@ -5,6 +5,7 @@
 #include <map>
 #include <cairo/cairo.h>
 #include <exception>
+#include <math.h>
 #include "CairoUtils.h"
 
 using namespace std;
@@ -76,7 +77,7 @@ FindPapers(ppd_group_t* group, int num_groups)
 
 
 void
-CreateBoundsImage(int Width, int Height, const string& Text, string& FileName)
+CreateBoundsImage(int Width, int Height, const string& Text, string& FileName, bool Landscape)
 {
   FileName = "test.png";
   
@@ -131,9 +132,34 @@ CreateBoundsImage(int Width, int Height, const string& Text, string& FileName)
   
   cairo_stroke(c);
 
-  // save to file
-  if (cairo_surface_write_to_png(Surface, FileName.c_str()) != CAIRO_STATUS_SUCCESS)
-    throw Error("Unable to write to PNG file");
+  // rotate if in Landscape to output always in portrait mode
+  if (Landscape)
+  {
+      int w = Height;
+      int h = Width;
+      CairoSurfacePtr Surface2(cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h));
+      if (!*Surface2)
+          throw Error("Unable to create cairo surface");
+
+
+      CairoPtr c2(cairo_create(Surface2));
+      if (!*c2)
+          throw Error("Unable to create cairo_t");
+
+      cairo_translate(c2, w * 0.5, h * 0.5);
+      cairo_rotate(c2, M_PI / 2.0);
+      cairo_translate(c2, -h * 0.5, -w * 0.5);
+      cairo_set_source_surface(c2, Surface, 0, 0);
+      cairo_set_operator(c2, CAIRO_OPERATOR_SOURCE);
+      cairo_paint(c2);
+
+      if (cairo_surface_write_to_png(Surface2, FileName.c_str()) != CAIRO_STATUS_SUCCESS)
+          throw Error("Unable to write to PNG file");
+  }
+  else
+      // save to file
+      if (cairo_surface_write_to_png(Surface, FileName.c_str()) != CAIRO_STATUS_SUCCESS)
+          throw Error("Unable to write to PNG file");
 }
 
 int main(int argc, char** argv)
@@ -141,7 +167,7 @@ int main(int argc, char** argv)
   try
   {
     if (argc < 2)
-      throw Error("Usage: paperlist <PrinterName>");
+      throw Error("Usage: paperlist <PrinterName> [LabelType]");
 
 
   const char* ppdFileName = cupsGetPPD(argv[1]);
@@ -160,6 +186,10 @@ int main(int argc, char** argv)
   {
     int ch;
     ppd_size_t size = ppd->sizes[i];
+    if (argc>=3)
+    //printf("%s\n", gPaperNames[size.name].substr(0,5).c_str());
+    if (argv[2]!=gPaperNames[size.name].substr(0,5))
+        continue;
 
     printf("Please Insert '%s' paper. Press 'c' to continue, 's' to skip: ", gPaperNames[size.name].c_str());
     while((ch = getchar()) == '\n') {}
@@ -183,7 +213,7 @@ int main(int argc, char** argv)
       Width = Height;
       Height = t;
     }
-    CreateBoundsImage(Width, Height, gPaperNames[size.name], FileName);
+    CreateBoundsImage(Width, Height, gPaperNames[size.name], FileName, Landscape);
 
     int             num_options = 0;
     cups_option_t*  options = NULL;
@@ -191,7 +221,9 @@ int main(int argc, char** argv)
     num_options = cupsAddOption("PageSize", size.name, num_options, &options);
     num_options = cupsAddOption("scaling", "100", num_options, &options);
     if (Landscape)
-      num_options = cupsAddOption("landscape", "yes", num_options, &options);
+      num_options = cupsAddOption("landscape", "no", num_options, &options);
+      //num_options = cupsAddOption("orientation-requested", "4", num_options, &options);
+      
       
 
     cupsPrintFile(argv[1], FileName.c_str(), "Test print with Cairo", num_options, options);

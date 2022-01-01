@@ -207,7 +207,8 @@ int main(int argc, char** argv)
 
     num_options = cupsAddOption("PageSize", "w167h288", num_options, &options);
     num_options = cupsAddOption("scaling", "100", num_options, &options);
-    num_options = cupsAddOption("landscape", "yes", num_options, &options);
+    //num_options = cupsAddOption("landscape", "yes", num_options, &options);
+    num_options = cupsAddOption("orientation-requested", "4", num_options, &options);
     num_options = cupsAddOption("DymoHalftoning", "ErrorDiffusion", num_options, &options);
     num_options = cupsAddOption("DymoPrintQuality", "Graphics", num_options, &options);
     //    num_options = cupsAddOption("orientation-requested", "1", num_options, &options);

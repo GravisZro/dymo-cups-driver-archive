@@ -1,9 +1,9 @@
 *PPD-Adobe: "4.3"
 
-*% $Id: lw400.ppd 16401 2011-10-31 18:51:16Z pineichen $
+*% $Id: se450.ppd 7198 2009-02-13 20:07:23Z vbuzuev $
 
 *% DYMO LabelWriter Drivers
-*% Copyright (C) 2008 Sanford L.P.
+*% Copyright (C) 2009 Sanford L.P.
 
 *% This program is free software; you can redistribute it and/or
 *% modify it under the terms of the GNU General Public License
@@ -23,9 +23,9 @@
 *FileVersion:   "3.0"
 *LanguageVersion: English 
 *LanguageEncoding: ISOLatin1
-*PCFileName:    "LW400.PPD"
+*PCFileName:    "SE450.PPD"
 *Manufacturer:  "DYMO"
-*Product:   "(DYMO LabelWriter 400)"
+*Product:   "(DYMO LabelWriter SE450)"
 *cupsVersion:   1.2
 *cupsManualCopies: False
 *cupsFilter:    "application/vnd.cups-raster 0 raster2dymolw"
@@ -39,10 +39,10 @@
 *LandscapeOrientation: Minus90
 *TTRasterizer:  Type42
 
-*ModelName: "DYMO LabelWriter 400"
-*NickName: "DYMO LabelWriter 400"
-*ShortNickName: "DYMO LabelWriter 400"
-*APPrinterIconPath: "/Library/Printers/DYMO/CUPS/Resources/LW400.icns"
+*ModelName: "DYMO LabelWriter SE450"
+*NickName: "DYMO LabelWriter SE450"
+*ShortNickName: "DYMO LabelWriter SE450"
+*APPrinterIconPath: "/Library/Printers/DYMO/CUPS/Resources/LW450.icns"
 
 *cupsIPPReason com.dymo.out-of-paper-error/Out of labels. : ""
 *cupsIPPReason com.dymo.read-error/Cannot read data from printer. : ""
@@ -276,8 +276,6 @@
 *PageRegion w154h792/Continuous, Wide: "<</PageSize[154 792]/ImagingBBox null/cupsMediaType 1/cupsInteger0 0>>setpagedevice"
 *CloseUI: *PageRegion
 
-*RequiresPageRegion All: True
-
 *DefaultImageableArea: w167h288
 *ImageableArea w154h64/11351 Jewelry Label: "0.00 4.32 150.72 58.80"
 *ImageableArea w72h154/11352 Return Address Int: "4.08 4.32 69.12 146.64"
@@ -287,8 +285,8 @@
 *ImageableArea w118h252/11356 White Name badge: "4.08 4.32 114.24 235.44"
 *ImageableArea w167h188/14681 CD/DVD Label: "4.08 17.04 161.28 170.40"
 *ImageableArea w79h252/30252 Address: "4.32 4.32 76.08 235.44"
-*ImageableArea w167h252/30253 Address (2 up): "4.08 4.32 163.44 235.68"
-*ImageableArea w167h288/30256 Shipping: "4.08 4.32 163.68 271.20"
+*ImageableArea w167h252/30253 Address (2 up): "4.08 4.32 162.97 235.68"
+*ImageableArea w167h288/30256 Shipping: "4.08 4.32 162.97 271.20"
 *ImageableArea w154h198/30258 Diskette: "4.08 4.32 150.24 182.16"
 *ImageableArea w82h248/30277 File Folder (2 up): "4.32 4.32 78.24 233.04"
 *ImageableArea w154h64.1/30299 Jewelry Label (2 up): "0.00 4.32 150.72 58.80"
@@ -313,11 +311,11 @@
 *ImageableArea w72h108/30347 1 in x 1-1/2 in: "4.08 4.32 69.12 91.68"
 *ImageableArea w65h90/30348 9/10 in x 1-1/4 in: "5.04 4.32 61.92 73.68"
 *ImageableArea w167h288.1/30364 Name Badge Label: "4.08 4.32 163.68 271.20"
-*ImageableArea w168h252/30365 Name Badge Card: "0.00 4.32 161.28 225.12"
+*ImageableArea w168h252/30365 Name Badge Card: "0.00 4.32 158.89 225.12"
 *ImageableArea w144h169/30370 Zip Disk: "4.32 4.32 141.12 152.88"
 *ImageableArea w71h144/30373 Price Tag Label: "0.00 85.44 67.44 139.68"
 *ImageableArea w144h252/30374 Appointment Card: "8.64 4.32 141.12 225.12"
-*ImageableArea w80h144/30376 Hanging File Insert: "8.64 4.32 76.32 121.44"
+*ImageableArea w80h144/30376 Hanging File Insert: "8.64 4.32 76.32 120.44"
 *ImageableArea w162h504/30383 PC Postage 3-Part: "4.08 4.32 159.12 488.16"
 *ImageableArea 30383_PC_Postage_3-Part/30383 PC Postage 3-Part: "4.08 4.32 159.12 488.16"
 *ImageableArea w167h540/30384 PC Postage 2-Part: "4.08 4.32 163.68 524.16"
@@ -325,8 +323,8 @@
 *ImageableArea w167h756/30387 PC Postage EPS: "4.08 4.32 163.68 740.16"
 *ImageableArea 30387_PC_Postage_EPS/30387 PC Postage EPS: "4.08 4.32 163.68 740.16"
 *ImageableArea w167h188.1/30854 CD Label: "4.08 17.04 161.28 170.40"
-*ImageableArea w176h292/30856 Badge Card Label: "0.00 4.32 161.28 264.72"
-*ImageableArea w167h288.2/30857 Badge Label: "4.08 4.32 163.68 271.20"
+*ImageableArea w176h292/30856 Badge Card Label: "8.64 4.32 167.53 264.72"
+*ImageableArea w167h288.2/30857 Badge Label: "4.08 4.32 162.97 271.20"
 *ImageableArea w112h126/30886 CD Label: "4.32 18.00 102.24 110.16"
 *ImageableArea w79h252.2/99010 Standard Address: "4.32 4.32 76.08 235.44"
 *ImageableArea w102h252.1/99012 Large Address: "4.32 4.32 98.40 234.96"
@@ -337,7 +335,7 @@
 *ImageableArea w139h221/99016 Video Top: "0.00 4.32 136.08 204.48"
 *ImageableArea w36h144/99017 Suspension File: "2.88 4.32 33.12 127.92"
 *ImageableArea w108h539/99018 Small Lever Arch: "4.08 4.32 104.88 522.72"
-*ImageableArea w167h539/99019 Large Lever Arch: "4.08 4.32 163.68 522.72"
+*ImageableArea w167h539/99019 Large Lever Arch: "4.08 4.32 162.97 522.72"
 *ImageableArea w154h7680/Banner: "4.08 17.04 148.08 7663.92"
 *ImageableArea w154h792/Continuous, Wide: "4.32 4.32 150.24 775.68"
 
@@ -408,7 +406,7 @@
 *HWMargins:      0 0 0 0
 *NonUIOrderDependency: 100 AnySetup *CustomPageSize True
 *CustomPageSize True/Custom Page Size: "pop pop pop <</PageSize[5 -2 roll]/ImagingBBox null/cupsInteger0 0>>setpagedevice"
-*ParamCustomPageSize Width:        1 points 10 161.28
+*ParamCustomPageSize Width:        1 points 10 158.89
 *ParamCustomPageSize Height:       2 points 10 7680
 *ParamCustomPageSize WidthOffset/Width Offset:  3 points 0 0
 *ParamCustomPageSize HeightOffset/Height Offset: 4 points 0 0
@@ -416,8 +414,9 @@
 
 *OpenUI *Resolution/Output Resolution: PickOne
 *OrderDependency: 20 AnySetup *Resolution
-*DefaultResolution: 300dpi
-*Resolution 300dpi/300 DPI: "<</HWResolution[300 300]>>setpagedevice"
+*DefaultResolution: 203dpi
+*Resolution 203dpi/203 DPI: "<</HWResolution[203 203]>>setpagedevice"
+*Resolution 203x138dpi/203x138 DPI: "<</HWResolution[203 138]>>setpagedevice"
 *CloseUI: *Resolution
 
 *OpenUI *DymoHalftoning/Halftoning: PickOne
@@ -539,7 +538,7 @@
 *CloseUI: *DymoPrintDensity
 
 *OpenUI *DymoPrintQuality/Print Quality: PickOne
-*OrderDependency: 20 AnySetup *DymoPrintQuality
+*OrderDependency: 21 AnySetup *DymoPrintQuality
 *DefaultDymoPrintQuality: Text
 *DymoPrintQuality Text/Text Only: ""
 *DymoPrintQuality Graphics/Barcodes and Graphics: ""
@@ -620,5 +619,5 @@
 *Font ZapfDingbats: Special "(001.004S)" Standard ROM
 
 *%
-*%  End of "$Id: lw400.ppd 16401 2011-10-31 18:51:16Z pineichen $"
+*%  End of "$Id: se450.ppd 7198 2009-02-13 20:07:23Z vbuzuev $"
 *%

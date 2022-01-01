@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: LabelManagerDriver.h 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: LabelManagerDriver.h 16081 2011-09-16 07:55:54Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -23,6 +23,7 @@
 
 #include "PrinterDriver.h"
 #include <string>
+
 
 namespace DymoPrinterDriver
 {
@@ -76,7 +77,7 @@ public:
 
   CLabelManagerDriver(IPrintEnvironment& Environment);
   virtual ~CLabelManagerDriver();
-    
+
   virtual void StartDoc();
   virtual void EndDoc();
 
@@ -87,9 +88,11 @@ public:
 
   void SetDeviceName(const std::string& DeviceName);
   void SetSupportAutoCut(bool Value);
+  void SetTSDevice(bool Value);
   void SetCutOptions(cut_t Value);
   void SetAlignment(alignment_t Value);
   void SetContinuousPaper(bool Value);
+  void SetPrintChainMarksAtDocEnd(bool Value);
   void SetAutoPaper(bool Value);
   void SetTapeAlignmentOffset(int Value);
   void SetTapeColor(tape_color_t Value);
@@ -102,9 +105,11 @@ public:
 
   const std::string&  GetDeviceName();
   bool                IsSupportAutoCut();
+  bool                IsTSDevice();
   cut_t               GetCutOptions();
   alignment_t         GetAlignment();
   bool                IsContinuousPaper();
+  bool                IsPrintChainMarksAtDocEnd();
   bool                IsAutoPaper();
   tape_color_t        GetTapeColor();
   int                 GetTapeAlignmentOffset();
@@ -113,11 +118,16 @@ public:
   size_t              GetMinLeader();
   size_t              GetAlignedLeader();
   size_t              GetMinPageLines();
-    
+  
+  static buffer_t GetRequestStatusCommand();
+
 protected:
   // helper function to send printer commands
   void SendCommand(const byte* Buf, size_t BufSize);
   void SendCommand(const buffer_t& Buf);
+  void SendCommandTS(const buffer_t& Buf);
+  void FlushCommandTS();
+  void EndCommandTS();
   void SendDotTab(size_t Value);
   void SendCut();
   void SendChainMark();
@@ -135,6 +145,7 @@ private:
   cut_t           CutOptions_;
   alignment_t     Alignment_;
   bool            ContinuousPaper_;
+  bool            PrintChainMarksAtDocEnd_;
   bool            AutoPaper_; // don't send last empty lines
   int             TapeAlignmentOffset_; // offset to justify output for the current label type . it is different for different tape sizes and models
   tape_color_t    TapeColor_;
@@ -142,6 +153,7 @@ private:
   // device params
   std::string     DeviceName_;
   bool            SupportAutoCut_;
+  bool            TSDevice_;
   size_t          MaxPrintableWidth_; // in dots
   size_t          NormalLeader_;
   size_t          MinLeader_;
@@ -156,17 +168,17 @@ private:
   size_t          PageLineCount_;
     
   std::vector<buffer_t> RasterLines_;
-  buffer_t              ShiftedRasterLine_;  
-    
-    
+  buffer_t              ShiftedRasterLine_;
+
+  buffer_t TSBuffer_;
+
+  FILE*           HLockFile_;
   void ProcessRasterLineInternal(const buffer_t& LineBuffer);
   void SendCachedRasterLines();
   void ShiftData(const buffer_t& Buf, buffer_t& ShiftedBuf, int ShiftValue);
   void ShiftDataLeft(const buffer_t& Buf, buffer_t& ShiftedBuf, size_t ShiftValue);
   void ShiftDataRight(const buffer_t& Buf, buffer_t& ShiftedBuf, size_t ShiftValue);
   int  GetShiftValue(size_t RasterLineSize);
-
-
 };
 
 
@@ -175,5 +187,5 @@ private:
 #endif
 
 /*
- * End of "$Id: LabelManagerDriver.h 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: LabelManagerDriver.h 16081 2011-09-16 07:55:54Z aleksandr $".
  */

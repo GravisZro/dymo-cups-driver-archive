@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: Halftoning.h 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: Halftoning.h 15960 2011-09-02 14:42:28Z pineichen $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -22,6 +22,7 @@
 #ifndef h4D098F6A_47C6_4e9d_BD74_2DC6034F8EEF
 #define h4D098F6A_47C6_4e9d_BD74_2DC6034F8EEF
 
+#include <stdlib.h>
 #include "CommonTypedefs.h"
 
 //namespace dymo
@@ -101,5 +102,5 @@ private:
 #endif
 
 /*
- * End of "$Id: Halftoning.h 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: Halftoning.h 15960 2011-09-02 14:42:28Z pineichen $".
  */

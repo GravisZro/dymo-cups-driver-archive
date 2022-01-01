@@ -1,6 +1,6 @@
 *PPD-Adobe: "4.3"
 
-*% $Id: lwduot2.ppd 16401 2011-10-31 18:51:16Z pineichen $
+*% $Id$
 
 *% DYMO LabelWriter Drivers
 *% Copyright (C) 2008 Sanford L.P.
@@ -23,9 +23,9 @@
 *FileVersion:   "3.0"
 *LanguageVersion: English 
 *LanguageEncoding: ISOLatin1
-*PCFileName:    "LWDUOT2.PPD"
+*PCFileName:    "LMPNP.PPD"
 *Manufacturer:  "DYMO"
-*Product:   "(DYMO LabelWriter DUO Tape 128)"
+*Product:   "(DYMO LabelManager PnP)"
 *cupsVersion:   1.2
 *cupsManualCopies: False
 *cupsFilter:    "application/vnd.cups-raster 0 raster2dymolm"
@@ -39,10 +39,10 @@
 *LandscapeOrientation: Minus90
 *TTRasterizer:  Type42
 
-*ModelName: "DYMO LabelWriter DUO Tape 128"
-*NickName: "DYMO LabelWriter DUO Tape 128"
-*ShortNickName: "DYMO LabelWriter DUO Tape 128"
-*APPrinterIconPath: "/Library/Printers/DYMO/CUPS/Resources/LWDuo.icns"
+*ModelName: "DYMO LabelManager PnP"
+*NickName: "DYMO LabelManager PnP"
+*ShortNickName: "DYMO LabelManager PnP"
+*APPrinterIconPath: "/Library/Printers/DYMO/CUPS/Resources/LMPNP.icns"
 
 *cupsIPPReason com.dymo.out-of-paper-error/Out of labels. : ""
 *cupsIPPReason com.dymo.read-error/Cannot read data from printer. : ""
@@ -147,91 +147,68 @@
 *% *UIConstraints: *PageSize w18h252 *MediaType 0
 *% *UIConstraints: *PageSize w26h252 *MediaType 1
 *% *UIConstraints: *PageSize w35h252.1 *MediaType 2
-*% *UIConstraints: *PageSize w55h252 *MediaType 3
-*% *UIConstraints: *PageSize w68h252   *MediaType 4
-*% *UIConstraints: *PageSize w35h252           *MediaType 2
-*% *UIConstraints: *PageSize w35h144           *MediaType 2
-*% *UIConstraints: *PageSize w35h252.2    *MediaType 2
-*% *UIConstraints: *PageSize w35h144.1    *MediaType 2
-*% *UIConstraints: *PageSize w68h252.2      *MediaType 4
+*% *UIConstraints: *PageSize w35h252 *MediaType 2
+*% *UIConstraints: *PageSize w35h144 *MediaType 2
+*% *UIConstraints: *PageSize w35h252.2 *MediaType 2
+*% *UIConstraints: *PageSize w35h144.1 *MediaType 2
 
 *OpenUI *MediaType/Label Width: PickOne
 *OrderDependency: 9 AnySetup *MediaType
-*DefaultMediaType: 24mm
+*DefaultMediaType: 12mm
 *MediaType 06mm/06 mm (1/4"): "<</cupsMediaType 0>>setpagedevice"
 *MediaType 09mm/09 mm (3/8"): "<</cupsMediaType 1>>setpagedevice"
 *MediaType 12mm/12 mm (1/2"): "<</cupsMediaType 2>>setpagedevice"
-*MediaType 19mm/19 mm (3/4"): "<</cupsMediaType 3>>setpagedevice"
-*MediaType 24mm/24 mm (1"):   "<</cupsMediaType 4>>setpagedevice"
 
 *de.Translation MediaType/Bandbreite: ""
 *de.MediaType 06mm/06 mm (1/4"): ""
 *de.MediaType 09mm/09 mm (3/8"): ""
 *de.MediaType 12mm/12 mm (1/2"): ""
-*de.MediaType 19mm/19 mm (3/4"): ""
-*de.MediaType 24mm/24 mm (1"): ""
 
 *es.Translation MediaType/Ancho de la cinta: ""
 *es.MediaType 06mm/06 mm (1/4"): ""
 *es.MediaType 09mm/09 mm (3/8"): ""
 *es.MediaType 12mm/12 mm (1/2"): ""
-*es.MediaType 19mm/19 mm (3/4"): ""
-*es.MediaType 24mm/24 mm (1"): ""
 
 *es_CO.Translation MediaType/Ancho de la cinta: ""
 *es_CO.MediaType 06mm/06 mm (1/4"): ""
 *es_CO.MediaType 09mm/09 mm (3/8"): ""
 *es_CO.MediaType 12mm/12 mm (1/2"): ""
-*es_CO.MediaType 19mm/19 mm (3/4"): ""
-*es_CO.MediaType 24mm/24 mm (1"): ""
 
 *fr.Translation MediaType/Largeur de ruban: ""
 *fr.MediaType 06mm/06 mm (1/4"): ""
 *fr.MediaType 09mm/09 mm (3/8"): ""
 *fr.MediaType 12mm/12 mm (1/2"): ""
-*fr.MediaType 19mm/19 mm (3/4"): ""
-*fr.MediaType 24mm/24 mm (1"): ""
 
 *fr_CA.Translation MediaType/Largeur de ruban: ""
 *fr_CA.MediaType 06mm/06 mm (1/4"): ""
 *fr_CA.MediaType 09mm/09 mm (3/8"): ""
 *fr_CA.MediaType 12mm/12 mm (1/2"): ""
-*fr_CA.MediaType 19mm/19 mm (3/4"): ""
-*fr_CA.MediaType 24mm/24 mm (1"): ""
 
 *it.Translation MediaType/Larghezza etichetta: ""
 *it.MediaType 06mm/06 mm (1/4"): ""
 *it.MediaType 09mm/09 mm (3/8"): ""
 *it.MediaType 12mm/12 mm (1/2"): ""
-*it.MediaType 19mm/19 mm (3/4"): ""
-*it.MediaType 24mm/24 mm (1"): ""
 
 *nl.Translation MediaType/Tapebreedte: ""
 *nl.MediaType 06mm/06 mm (1/4"): ""
 *nl.MediaType 09mm/09 mm (3/8"): ""
 *nl.MediaType 12mm/12 mm (1/2"): ""
-*nl.MediaType 19mm/19 mm (3/4"): ""
-*nl.MediaType 24mm/24 mm (1"): ""
 
 *pt.Translation MediaType/Largura da fita: ""
 *pt.MediaType 06mm/06 mm (1/4"): ""
 *pt.MediaType 09mm/09 mm (3/8"): ""
 *pt.MediaType 12mm/12 mm (1/2"): ""
-*pt.MediaType 19mm/19 mm (3/4"): ""
-*pt.MediaType 24mm/24 mm (1"): ""
 
 *pt_BR.Translation MediaType/Largura da fita: ""
 *pt_BR.MediaType 06mm/06 mm (1/4"): ""
 *pt_BR.MediaType 09mm/09 mm (3/8"): ""
 *pt_BR.MediaType 12mm/12 mm (1/2"): ""
-*pt_BR.MediaType 19mm/19 mm (3/4"): ""
-*pt_BR.MediaType 24mm/24 mm (1"): ""
 
 *CloseUI: *MediaType
 
 *OpenUI *PageSize/Media Size: PickOne
 *OrderDependency: 10 AnySetup *PageSize
-*DefaultPageSize: w68h252.2
+*DefaultPageSize: w35h252.1
 *PageSize w18h252/06 mm (1/4") Label: "<</PageSize[18 252]/ImagingBBox null/cupsMediaType 0/cupsInteger0 0>>setpagedevice"
 *PageSize w18h4000/06 mm (1/4") Continuous: "<</PageSize[18 4000]/ImagingBBox null/cupsMediaType 256/cupsInteger0 0>>setpagedevice"
 *PageSize w26h252/09 mm (3/8") Label: "<</PageSize[26 252]/ImagingBBox null/cupsMediaType 1/cupsInteger0 0>>setpagedevice"
@@ -240,18 +217,13 @@
 *PageSize w35h144/1/5 File: "<</PageSize[35 144]/ImagingBBox null/cupsMediaType 2/cupsInteger0 0>>setpagedevice"
 *PageSize w35h252.1/12 mm (1/2") Label: "<</PageSize[35 252]/ImagingBBox null/cupsMediaType 2/cupsInteger0 0>>setpagedevice"
 *PageSize w35h4000/12 mm (1/2") Continuous: "<</PageSize[35 4000]/ImagingBBox null/cupsMediaType 258/cupsInteger0 0>>setpagedevice"
-*PageSize w55h252/19 mm (3/4") Label: "<</PageSize[55 252]/ImagingBBox null/cupsMediaType 3/cupsInteger0 0>>setpagedevice"
-*PageSize w55h4000/19 mm (3/4") Continuous: "<</PageSize[55 4000]/ImagingBBox null/cupsMediaType 259/cupsInteger0 0>>setpagedevice"
-*PageSize w68h252/24 mm (1") Label: "<</PageSize[68 252]/ImagingBBox null/cupsMediaType 4/cupsInteger0 0>>setpagedevice"
-*PageSize w68h4000/24 mm (1") Continuous: "<</PageSize[68 4000]/ImagingBBox null/cupsMediaType 260/cupsInteger0 0>>setpagedevice"
-*PageSize w68h252.2/Address Label: "<</PageSize[68 252]/ImagingBBox null/cupsMediaType 4/cupsInteger0 0>>setpagedevice"
 *PageSize w35h252.2/Large Pendaflex: "<</PageSize[35 252]/ImagingBBox null/cupsMediaType 2/cupsInteger0 0>>setpagedevice"
 *PageSize w35h144.1/Small Pendaflex: "<</PageSize[35 144]/ImagingBBox null/cupsMediaType 2/cupsInteger0 0>>setpagedevice"
 *CloseUI: *PageSize
 
 *OpenUI *PageRegion: PickOne
 *OrderDependency: 10 AnySetup *PageRegion
-*DefaultPageRegion: w68h252.2
+*DefaultPageRegion: w35h252.1
 *PageRegion w18h252/06 mm (1/4") Label: "<</PageSize[18 252]/ImagingBBox null/cupsMediaType 0/cupsInteger0 0>>setpagedevice"
 *PageRegion w18h4000/06 mm (1/4") Continuous: "<</PageSize[18 4000]/ImagingBBox null/cupsMediaType 256/cupsInteger0 0>>setpagedevice"
 *PageRegion w26h252/09 mm (3/8") Label: "<</PageSize[26 252]/ImagingBBox null/cupsMediaType 1/cupsInteger0 0>>setpagedevice"
@@ -260,33 +232,23 @@
 *PageRegion w35h144/1/5 File: "<</PageSize[35 144]/ImagingBBox null/cupsMediaType 2/cupsInteger0 0>>setpagedevice"
 *PageRegion w35h252.1/12 mm (1/2") Label: "<</PageSize[35 252]/ImagingBBox null/cupsMediaType 2/cupsInteger0 0>>setpagedevice"
 *PageRegion w35h4000/12 mm (1/2") Continuous: "<</PageSize[35 4000]/ImagingBBox null/cupsMediaType 258/cupsInteger0 0>>setpagedevice"
-*PageRegion w55h252/19 mm (3/4") Label: "<</PageSize[55 252]/ImagingBBox null/cupsMediaType 3/cupsInteger0 0>>setpagedevice"
-*PageRegion w55h4000/19 mm (3/4") Continuous: "<</PageSize[55 4000]/ImagingBBox null/cupsMediaType 259/cupsInteger0 0>>setpagedevice"
-*PageRegion w68h252/24 mm (1") Label: "<</PageSize[68 252]/ImagingBBox null/cupsMediaType 4/cupsInteger0 0>>setpagedevice"
-*PageRegion w68h4000/24 mm (1") Continuous: "<</PageSize[68 4000]/ImagingBBox null/cupsMediaType 260/cupsInteger0 0>>setpagedevice"
-*PageRegion w68h252.2/Address Label: "<</PageSize[68 252]/ImagingBBox null/cupsMediaType 4/cupsInteger0 0>>setpagedevice"
 *PageRegion w35h252.2/Large Pendaflex: "<</PageSize[35 252]/ImagingBBox null/cupsMediaType 2/cupsInteger0 0>>setpagedevice"
 *PageRegion w35h144.1/Small Pendaflex: "<</PageSize[35 144]/ImagingBBox null/cupsMediaType 2/cupsInteger0 0>>setpagedevice"
 *CloseUI: *PageRegion
 
-*DefaultImageableArea: w68h252.2
-*ImageableArea w18h252/06 mm (1/4") Label: "1.60 30.00 16.00 222.00"
-*ImageableArea w18h4000/06 mm (1/4") Continuous: "1.60 30.00 16.00 3970.00"
+*DefaultImageableArea: w35h252.1
+*ImageableArea w18h252/06 mm (1/4") Label: "2.80 30.00 14.80 222.00"
+*ImageableArea w18h4000/06 mm (1/4") Continuous: "2.80 30.00 14.80 3970.00"
 *ImageableArea w26h252/09 mm (3/8") Label: "2.80 30.00 22.80 222.00"
 *ImageableArea w26h4000/09 mm (3/8") Continuous: "2.80 30.00 22.80 3970.00"
-*ImageableArea w35h252/1/3 File: "4.40 30.00 30.00 222.00"
-*ImageableArea w35h144/1/5 File: "4.40 30.00 30.00 114.00"
-*ImageableArea w35h252.1/12 mm (1/2") Label: "4.40 30.00 30.00 222.00"
-*ImageableArea w35h4000/12 mm (1/2") Continuous: "4.40 30.00 30.00 3970.00"
-*ImageableArea w55h252/19 mm (3/4") Label: "7.20 30.00 47.20 222.00"
-*ImageableArea w55h4000/19 mm (3/4") Continuous: "7.20 30.00 47.20 3970.00"
-*ImageableArea w68h252/24 mm (1") Label: "8.40 30.00 59.60 222.00"
-*ImageableArea w68h4000/24 mm (1") Continuous: "8.40 30.00 59.60 3970.00"
-*ImageableArea w68h252.2/Address Label: "8.40 30.00 59.60 222.00"
-*ImageableArea w35h252.2/Large Pendaflex: "4.40 30.00 30.00 222.00"
-*ImageableArea w35h144.1/Small Pendaflex: "4.40 30.00 30.00 114.00"
+*ImageableArea w35h252/1/3 File: "5.60 30.00 28.80 222.00"
+*ImageableArea w35h144/1/5 File: "5.60 30.00 28.80 114.00"
+*ImageableArea w35h252.1/12 mm (1/2") Label: "5.60 30.00 28.80 222.00"
+*ImageableArea w35h4000/12 mm (1/2") Continuous: "5.60 30.00 28.80 3970.00"
+*ImageableArea w35h252.2/Large Pendaflex: "5.60 30.00 28.80 222.00"
+*ImageableArea w35h144.1/Small Pendaflex: "5.60 30.00 28.80 114.00"
 
-*DefaultPaperDimension: w68h252.2
+*DefaultPaperDimension: w35h252.1
 *PaperDimension w18h252/06 mm (1/4") Label: "17.60 252.00"
 *PaperDimension w18h4000/06 mm (1/4") Continuous: "17.60 4000.00"
 *PaperDimension w26h252/09 mm (3/8") Label: "25.60 252.00"
@@ -295,20 +257,15 @@
 *PaperDimension w35h144/1/5 File: "34.40 144.00"
 *PaperDimension w35h252.1/12 mm (1/2") Label: "34.40 252.00"
 *PaperDimension w35h4000/12 mm (1/2") Continuous: "34.40 4000.00"
-*PaperDimension w55h252/19 mm (3/4") Label: "54.40 252.00"
-*PaperDimension w55h4000/19 mm (3/4") Continuous: "54.40 4000.00"
-*PaperDimension w68h252/24 mm (1") Label: "68.00 252.00"
-*PaperDimension w68h4000/24 mm (1") Continuous: "68.00 4000.00"
-*PaperDimension w68h252.2/Address Label: "68.00 252.00"
 *PaperDimension w35h252.2/Large Pendaflex: "34.40 252.00"
 *PaperDimension w35h144.1/Small Pendaflex: "34.40 144.00"
 
-*MaxMediaWidth:  "51.2"
+*MaxMediaWidth:  "24"
 *MaxMediaHeight: "12800"
 *HWMargins:      0 0 0 0
 *CustomPageSize True: "pop pop pop <</PageSize[5 -2 roll]/ImagingBBox null/cupsInteger0 0>>setpagedevice"
-*ParamCustomPageSize Width:        1 points 14.4 51.2
-*ParamCustomPageSize Height:       2 points 16 12800
+*ParamCustomPageSize Width:        1 points 10 24
+*ParamCustomPageSize Height:       2 points 10 12800
 *ParamCustomPageSize WidthOffset:  3 points 0 0
 *ParamCustomPageSize HeightOffset: 4 points 0 0
 *ParamCustomPageSize Orientation:  5 int 0 0
@@ -372,50 +329,6 @@
 *pt_BR.DymoHalftoning NLL/Pontilhado não linear: ""
 
 *CloseUI: *DymoHalftoning
-
-*OpenUI *DymoCutOptions/Cut Options: PickOne
-*OrderDependency: 20 AnySetup *DymoCutOptions
-*DefaultDymoCutOptions: Cut
-*DymoCutOptions Cut/Cut: ""
-*DymoCutOptions ChainMarks/Chain Marks: ""
-
-*de.Translation DymoCutOptions/Schnittoptionen: ""
-*de.DymoCutOptions Cut/Autom. schneiden: ""
-*de.DymoCutOptions ChainMarks/Schnittmarken drucken: ""
-
-*es.Translation DymoCutOptions/Opciones para cortar: ""
-*es.DymoCutOptions Cut/Corte automático: ""
-*es.DymoCutOptions ChainMarks/Imprimir marcas del corte: ""
-
-*es_CO.Translation DymoCutOptions/Opciones para cortar: ""
-*es_CO.DymoCutOptions Cut/Corte automático: ""
-*es_CO.DymoCutOptions ChainMarks/Imprimir marcas del corte: ""
-
-*fr.Translation DymoCutOptions/Options de coupe: ""
-*fr.DymoCutOptions Cut/Coupe automatique: ""
-*fr.DymoCutOptions ChainMarks/Imprimer les lignes pointillées: ""
-
-*fr_CA.Translation DymoCutOptions/Options de coupe: ""
-*fr_CA.DymoCutOptions Cut/Coupe automatique: ""
-*fr_CA.DymoCutOptions ChainMarks/Imprimer les lignes pointillées: ""
-
-*it.Translation DymoCutOptions/Opzioni di taglio: ""
-*it.DymoCutOptions Cut/Taglia: ""
-*it.DymoCutOptions ChainMarks/Crocini continui: ""
-
-*nl.Translation DymoCutOptions/Knipopties: ""
-*nl.DymoCutOptions Cut/Automatisch knippen: ""
-*nl.DymoCutOptions ChainMarks/Scheidingslijnen afdrukken: ""
-
-*pt.Translation DymoCutOptions/Opções de corte: ""
-*pt.DymoCutOptions Cut/Corte automático: ""
-*pt.DymoCutOptions ChainMarks/Imprimir marcas de corte: ""
-
-*pt_BR.Translation DymoCutOptions/Opções de corte: ""
-*pt_BR.DymoCutOptions Cut/Corte automático: ""
-*pt_BR.DymoCutOptions ChainMarks/Imprimir marcas de corte: ""
-
-*CloseUI: *DymoCutOptions
 
 *OpenUI *DymoLabelAlignment/Label Alignment: PickOne
 *OrderDependency: 20 AnySetup *DymoLabelAlignment
@@ -751,5 +664,5 @@
 *Font ZapfDingbats: Special "(001.004S)" Standard ROM
 
 *%
-*%  End of "$Id: lwduot2.ppd 16401 2011-10-31 18:51:16Z pineichen $"
+*%  End of "$Id: lwduot2.ppd 14739 2011-03-02 08:52:53Z aleksandr $"
 *%

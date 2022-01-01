@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: CupsFilterLabelWriter.cpp 7050 2009-02-07 00:06:12Z vbuzuev $
+// $Id: CupsFilterLabelWriter.cpp 10899 2010-02-08 18:21:16Z vbuzuev $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -25,7 +25,18 @@ namespace DymoPrinterDriver
 
 void CDriverInitializerLabelWriter::ProcessPPDOptions(CLabelWriterDriver& Driver, CDummyLanguageMonitor& LM, ppd_file_t* ppd)
 {
-  ppd_choice_t* choice = ppdFindMarkedChoice(ppd, "DymoPrintQuality");
+  ppd_choice_t* choice = ppdFindMarkedChoice(ppd, "Resolution");
+  if (choice)
+  {
+    if (!strcasecmp(choice->choice, "203dpi"))
+      Driver.SetResolution(CLabelWriterDriver::res204);
+    else if (!strcasecmp(choice->choice, "203x138dpi"))
+      Driver.SetResolution(CLabelWriterDriver::res136);
+  }
+  else
+    fputs("WARNING: unable to get Resolution choice\n", stderr);
+
+  choice = ppdFindMarkedChoice(ppd, "DymoPrintQuality");
   if (choice)
   {
     if (!strcasecmp(choice->choice, "Text"))
@@ -59,6 +70,9 @@ void CDriverInitializerLabelWriter::ProcessPPDOptions(CLabelWriterDriver& Driver
 
   if (!strcasecmp(ppd->modelname, "DYMO LabelWriter 4XL"))
     Driver.SetMaxPrintWidth(156);
+
+  if (!strcasecmp(ppd->modelname, "DYMO LabelWriter SE450"))
+    Driver.SetMaxPrintWidth(56); 
 }
 
 void
@@ -138,5 +152,5 @@ CDriverInitializerLabelWriterTwinTurboWithLM::ProcessPageOptions(CLabelWriterDri
 } // namespace
 
 /*
- * End of "$Id: CupsFilterLabelWriter.cpp 7050 2009-02-07 00:06:12Z vbuzuev $".
+ * End of "$Id: CupsFilterLabelWriter.cpp 10899 2010-02-08 18:21:16Z vbuzuev $".
  */

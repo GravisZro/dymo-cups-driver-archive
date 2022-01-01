@@ -18,8 +18,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 AC_PREREQ(2.59)
-AC_INIT(dymo-cups-drivers, 1.2.0, vbuzuev@dymo.com)
-AM_INIT_AUTOMAKE(dymo-cups-drivers, 1.2.0)
+AC_INIT(dymo-cups-drivers, 1.4.0.5, vbuzuev@dymo.com)
+AM_INIT_AUTOMAKE(dymo-cups-drivers, 1.4.0.5)
 AC_CONFIG_SRCDIR([src/lw/CupsFilterLabelWriter.h])
 AC_CONFIG_HEADER([src/config.h])
 

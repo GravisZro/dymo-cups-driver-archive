@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: CupsPrintEnvironment.cpp 7144 2009-02-11 20:37:02Z vbuzuev $
+// $Id: CupsPrintEnvironment.cpp 14976 2011-04-26 15:24:48Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -153,31 +153,52 @@ CCupsPrintEnvironmentForLM::ReadData(buffer_t& DataBuffer)
 IPrintEnvironment::job_status_t
 CCupsPrintEnvironmentForLM::GetJobStatus()
 {
-  return jsOK;
+  return JobStatus_;
 }
 
 void
 CCupsPrintEnvironmentForLM::SetJobStatus(job_status_t JobStatus)
 {
-  switch (JobStatus)
-  {
-    case jsOK:
-      fprintf(stderr, "INFO: continue printing.\n");
-      break;
-    case jsPaperOut:
-      fprintf(stderr, "INFO: paper out.\n");
-      break;
-    case jsError:
-      fprintf(stderr, "INFO: printing error.\n");
-      break;
-    default:
-      assert(0);
-  }
-}
+    JobStatus_ = JobStatus;
 
+    switch (JobStatus)
+    {
+        case jsOK:
+            fputs("STATE: none\n", stderr);
+            break;
+        case jsPaperOut:
+            fputs("STATE: com.dymo.out-of-paper-error\n", stderr);
+            break;
+        case jsError:
+            fputs("STATE: com.dymo.general-error\n", stderr);
+            break;
+        case jsPaperSizeError:
+            fputs("STATE: com.dymo.paper-size-error\n", stderr);
+            break;
+        case jsPaperSizeUndefinedError:
+            fputs("STATE: com.dymo.paper-size-undefine-error\n", stderr);
+            break;
+        case jsHeadOverheat:
+            fputs("STATE: com.dymo.head-overheat-error\n", stderr);
+            break;
+        case jsSlotStatusError:
+            fputs("STATE: com.dymo.slot-status-error\n", stderr);
+            break;
+        case jsBusy:
+            fputs("STATE: com.dymo.busy-error\n", stderr);
+            break;
+        default:
+            assert(0);
+    }
+    
+}
 
 } // namespace
 
 /*
- * End of "$Id: CupsPrintEnvironment.cpp 7144 2009-02-11 20:37:02Z vbuzuev $".
+ * End of "$Id: CupsPrintEnvironment.cpp 14976 2011-04-26 15:24:48Z aleksandr $".
  */
+
+
+
+

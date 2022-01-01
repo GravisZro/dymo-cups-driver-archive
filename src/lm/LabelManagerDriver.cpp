@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: LabelManagerDriver.cpp 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: LabelManagerDriver.cpp 16081 2011-09-16 07:55:54Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -18,10 +18,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-
 #include "LabelManagerDriver.h"
+
 #include <assert.h>
+#include <stdio.h>
 #include <algorithm>
+
 
 namespace DymoPrinterDriver
 {
@@ -32,11 +34,12 @@ const byte SYN = 0x16;
 
 CLabelManagerDriver::CLabelManagerDriver(IPrintEnvironment& Environment):
   Environment_(Environment), 
-  CutOptions_(CLabelManagerDriver::coCut), Alignment_(alCenter), ContinuousPaper_(false), AutoPaper_(false), TapeAlignmentOffset_(0), TapeColor_(tcBlackOnWhite),
-  DeviceName_(), SupportAutoCut_(true), MaxPrintableWidth_(96), 
+  CutOptions_(CLabelManagerDriver::coCut), Alignment_(alCenter), ContinuousPaper_(false), PrintChainMarksAtDocEnd_(false), AutoPaper_(false), TapeAlignmentOffset_(0), TapeColor_(tcBlackOnWhite),
+  DeviceName_(), SupportAutoCut_(true), TSDevice_(false), MaxPrintableWidth_(96), 
   NormalLeader_(75), MinLeader_(55), AlignedLeader_(43), MinPageLines_(133),
   LastDotTab_(size_t(-1)), LastBytesPerLine_(size_t(-1)), EmptyLinesCount_(0), PageNo_(1),
-  RasterLines_(), ShiftedRasterLine_(12)
+  RasterLines_(), ShiftedRasterLine_(12), TSBuffer_(0),
+  HLockFile_(0)
 {
 }
 
@@ -48,7 +51,7 @@ void
 CLabelManagerDriver::StartDoc()
 {
   PageNo_ = 1;
-
+  
   SendCommand(buffer_t(GetMaxBytesPerLine(), 0)); // clean
 
   SendTapeColor(TapeColor_);
@@ -57,10 +60,19 @@ CLabelManagerDriver::StartDoc()
 void 
 CLabelManagerDriver::EndDoc()
 {
+  if (PrintChainMarksAtDocEnd_)
+    SendChainMark();
+
   SendSkipLines(MinLeader_); // advance to the cutter
-    
-  if (SupportAutoCut_)
+
+  if (SupportAutoCut_ && !PrintChainMarksAtDocEnd_)
     SendCut();
+
+  if(IsTSDevice())
+  {
+      FlushCommandTS();
+      EndCommandTS();
+  }
 }
 
 void 
@@ -69,6 +81,7 @@ CLabelManagerDriver::StartPage()
   LastDotTab_         = size_t(-1);
   LastBytesPerLine_   = size_t(-1);
   PageLineCount_      = 0;
+  EmptyLinesCount_    = 0;
     
   RasterLines_.clear();
     
@@ -290,8 +303,7 @@ CLabelManagerDriver::SetMinPageLines(size_t Value)
 {
   MinPageLines_ = Value;
 }
-
-
+    
 void        
 CLabelManagerDriver::SetCutOptions(CLabelManagerDriver::cut_t Value)
 {
@@ -308,6 +320,12 @@ void
 CLabelManagerDriver::SetContinuousPaper(bool Value)
 {
   ContinuousPaper_ = Value;
+}
+
+void        
+CLabelManagerDriver::SetPrintChainMarksAtDocEnd(bool Value)
+{
+  PrintChainMarksAtDocEnd_ = Value;
 }
 
 void        
@@ -340,7 +358,12 @@ CLabelManagerDriver::SetSupportAutoCut(bool Value)
   SupportAutoCut_ = Value;
 }
 
-
+void        
+CLabelManagerDriver::SetTSDevice(bool Value)
+{
+  TSDevice_ = Value;
+}
+    
 size_t 
 CLabelManagerDriver::GetMaxBytesPerLine()
 {
@@ -359,6 +382,12 @@ CLabelManagerDriver::IsSupportAutoCut()
   return SupportAutoCut_;
 }
 
+bool                
+CLabelManagerDriver::IsTSDevice()
+{
+  return TSDevice_;
+}
+    
 CLabelManagerDriver::cut_t               
 CLabelManagerDriver::GetCutOptions()
 {
@@ -375,6 +404,12 @@ bool
 CLabelManagerDriver::IsContinuousPaper()
 {
   return ContinuousPaper_;
+}
+
+bool                
+CLabelManagerDriver::IsPrintChainMarksAtDocEnd()
+{
+  return PrintChainMarksAtDocEnd_;
 }
 
 bool                
@@ -428,15 +463,64 @@ CLabelManagerDriver::GetMinPageLines()
 void
 CLabelManagerDriver::SendCommand(const byte* Buf, size_t BufSize)
 {
-  Environment_.WriteData(buffer_t(Buf, Buf + BufSize));
+  SendCommand(buffer_t(Buf, Buf + BufSize));
 }
 
 void
 CLabelManagerDriver::SendCommand(const buffer_t& Buf)
 {
-  Environment_.WriteData(Buf);
+  if(IsTSDevice())
+    SendCommandTS(Buf);
+  else
+    Environment_.WriteData(Buf);
 }
 
+void
+CLabelManagerDriver::SendCommandTS(const buffer_t& Buf)
+{
+    TSBuffer_.insert(TSBuffer_.end(), Buf.begin(), Buf.end());
+
+    fprintf(stderr, "DEBUG: SendCommandTS() size %d\n", int(TSBuffer_.size()));
+
+    if(TSBuffer_.size() > 4096)
+        FlushCommandTS();
+}
+
+void
+CLabelManagerDriver::FlushCommandTS()
+{
+  if(TSBuffer_.size() > 0)
+  {
+    fprintf(stderr, "DEBUG: FlushCommandTS() size %d\n", int(TSBuffer_.size()));
+
+    byte buf[] = {ESC, 'Y', 1, 0, 0, 0, 0};
+    size_t size = TSBuffer_.size();
+
+    buf[3] = size >> 24;
+    buf[4] = (size >> 16) & 0xFF;
+    buf[5] = (size >> 8) & 0xFF;
+    buf[6] = size & 0xFF;
+
+    fprintf(stderr, "DEBUG: FlushCommandTS() size 0x%02X 0x%02X 0x%02X 0x%02X\n", buf[3], buf[4], buf[5], buf[6]);
+
+    buffer_t prefix = buffer_t(buf, buf + 7);
+      
+    TSBuffer_.insert(TSBuffer_.begin(), prefix.begin(), prefix.end());
+      
+    Environment_.WriteData(TSBuffer_);
+
+    TSBuffer_.clear();
+  }
+}
+
+void
+CLabelManagerDriver::EndCommandTS()
+{
+    byte buf[] = {ESC, 'Y', 0, 0, 0, 0, 0};
+
+    Environment_.WriteData(buffer_t(buf, buf + sizeof(buf)));
+}
+    
 void
 CLabelManagerDriver::SendDotTab(size_t Value)
 {
@@ -556,9 +640,17 @@ CLabelManagerDriver::GetShiftValue(size_t RasterLineSize)
   return (MaxPrintableWidth_ - RasterLineSize * 8) / 2 + TapeAlignmentOffset_;
 }
 
+buffer_t
+CLabelManagerDriver::GetRequestStatusCommand()
+{
+    byte buf[] = {ESC, 'A'};
+    
+    return buffer_t(buf, buf + sizeof(buf));
+}
+    
 }; // namespace
 
 
 /*
- * End of "$Id: LabelManagerDriver.cpp 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: LabelManagerDriver.cpp 16081 2011-09-16 07:55:54Z aleksandr $".
  */

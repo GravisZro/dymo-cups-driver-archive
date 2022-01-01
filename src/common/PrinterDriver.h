@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: PrinterDriver.h 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: PrinterDriver.h 14976 2011-04-26 15:24:48Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -34,15 +34,15 @@ namespace DymoPrinterDriver
 class IPrinterDriver
 {
 public:
-  virtual void StartDoc()     = 0;
-  virtual void EndDoc()       = 0;
+    virtual void StartDoc()       = 0;
+    virtual void EndDoc()         = 0;
 
-  virtual void StartPage()    = 0;
-  virtual void EndPage()      = 0;
+    virtual void StartPage()      = 0;
+    virtual void EndPage()        = 0;
 
-  virtual void ProcessRasterLine(const buffer_t& LineBuffer) = 0;
-    
-  virtual ~IPrinterDriver() {}
+    virtual void ProcessRasterLine(const buffer_t& LineBuffer) = 0;
+
+    virtual ~IPrinterDriver() {}
 };
 
 /**
@@ -56,7 +56,12 @@ public:
     jsOK,
     jsPaperOut,
     jsError,
-    jsDeleted
+    jsDeleted,
+    jsPaperSizeError,
+    jsPaperSizeUndefinedError,
+    jsHeadOverheat,
+    jsSlotStatusError,
+    jsBusy
   } job_status_t;
 
   virtual void WriteData(const buffer_t& DataBuffer) = 0;
@@ -92,12 +97,5 @@ public:
 #endif
 
 /*
- * End of "$Id: PrinterDriver.h 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: PrinterDriver.h 14976 2011-04-26 15:24:48Z aleksandr $".
  */
-
-
-
-
-
-
-

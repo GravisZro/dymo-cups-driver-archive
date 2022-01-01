@@ -1,4 +1,4 @@
-# $Id: Makefile.am 4759 2008-06-19 19:02:27Z vbuzuev $
+# $Id: Makefile.am 15967 2011-09-02 14:54:28Z pineichen $
 
 # DYMO LabelWriter Drivers
 # Copyright (C) 2008 Sanford L.P.
@@ -29,6 +29,8 @@ raster2dymolm_SOURCES = \
     LabelManagerDriver.h \
     CupsFilterLabelManager.cpp \
     CupsFilterLabelManager.h \
+    LabelManagerLanguageMonitor.cpp \
+    LabelManagerLanguageMonitor.h \
     ../common/CupsPrintEnvironment.cpp \
     ../common/CupsPrintEnvironment.h \
     ../common/CupsFilter.h \
@@ -45,5 +47,5 @@ raster2dymolm_SOURCES = \
 raster2dymolm_LDADD = $(CUPS_LIBS)
 
 #
-#  End of $Id: Makefile.am 4759 2008-06-19 19:02:27Z vbuzuev $
+#  End of $Id: Makefile.am 15967 2011-09-02 14:54:28Z pineichen $
 #

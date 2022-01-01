@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: MOCK_LWLMPrintEnvironment.cpp 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: MOCK_LWLMPrintEnvironment.cpp 15962 2011-09-02 14:45:00Z pineichen $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -20,6 +20,7 @@
 
 #include "MOCK_LWLMPrintEnvironment.h"
 #include "../LabelWriterDriver.h"
+#include <assert.h>
 
 static const byte TOF_BIT           = 0x02;
 static const byte ROLL_CHANGED_BIT  = 0x08;
@@ -124,7 +125,7 @@ MockLWLMPrintEnvironment::PushMode(mode_t Mode, size_t Count)
 
 
 /*
- * End of "$Id: MOCK_LWLMPrintEnvironment.cpp 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: MOCK_LWLMPrintEnvironment.cpp 15962 2011-09-02 14:45:00Z pineichen $".
  */
 
 

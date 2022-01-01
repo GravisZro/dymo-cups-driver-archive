@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: CommonTypedefs.h 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: CommonTypedefs.h 14976 2011-04-26 15:24:48Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -29,6 +29,7 @@ namespace DymoPrinterDriver
 {
     
 typedef unsigned char       byte;
+typedef unsigned int        dword;
 typedef std::vector<byte>   buffer_t;    
 
 } // namespace
@@ -37,6 +38,5 @@ typedef std::vector<byte>   buffer_t;
 #endif
 
 /*
- * End of "$Id: CommonTypedefs.h 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: CommonTypedefs.h 14976 2011-04-26 15:24:48Z aleksandr $".
  */
-

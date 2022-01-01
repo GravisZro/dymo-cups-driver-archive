@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: raster2dymolw.cpp 7085 2009-02-09 21:16:50Z vbuzuev $
+// $Id: raster2dymolw.cpp 15043 2011-05-05 17:38:38Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -44,10 +44,12 @@ using namespace DymoPrinterDriver;
 static bool
 IsBackchannelSupported()
 {
-  // if the backend channel is supported the fd is 3
-  struct stat stat;   
+  return true;
 
-  return fstat(3, &stat) == 0;
+  // if the backend channel is supported the fd is 3
+  //struct stat stat;   
+
+  //return fstat(3, &stat) == 0;
 }
 
 int
@@ -90,6 +92,7 @@ main(int argc, char* argv[])
     else if (!strcasecmp(ppd->modelname, "DYMO LabelWriter 400")
     || !strcasecmp(ppd->modelname, "DYMO LabelWriter 400 Turbo")
     || !strcasecmp(ppd->modelname, "DYMO LabelWriter DUO Label")
+    || !strcasecmp(ppd->modelname, "DYMO LabelWriter 4XL")
     || !strcasecmp(ppd->modelname, "DYMO LabelWriter 450")
     || !strcasecmp(ppd->modelname, "DYMO LabelWriter 450 Turbo")
     || !strcasecmp(ppd->modelname, "DYMO LabelWriter 450 DUO Label"))
@@ -122,5 +125,5 @@ main(int argc, char* argv[])
 }
 
 /*
- * End of "$Id: raster2dymolw.cpp 7085 2009-02-09 21:16:50Z vbuzuev $".
+ * End of "$Id: raster2dymolw.cpp 15043 2011-05-05 17:38:38Z aleksandr $".
  */

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: CupsFilter.h 7049 2009-02-06 23:24:54Z vbuzuev $
+// $Id: CupsFilter.h 15959 2011-09-02 14:40:29Z pineichen $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -28,6 +28,7 @@
 #include "CupsPrintEnvironment.h"
 #include "ErrorDiffusionHalftoning.h"
 #include "NonLinearLaplacianHalftoning.h"
+
 
 namespace DymoPrinterDriver
 {
@@ -96,6 +97,7 @@ CCupsFilter<D, DI, LM>::Run(int argc, char* argv[])
   }
 
   InitDocument(argv[5]);
+
   LanguageMonitor_.StartDoc();
   Driver_.StartDoc();
 
@@ -117,6 +119,10 @@ CCupsFilter<D, DI, LM>::Run(int argc, char* argv[])
 
     DI::ProcessPageOptions(Driver_, LanguageMonitor_, PageHeader);
     LanguageMonitor_.StartPage();
+      
+    if(PrintEnvironmentForLM_.GetJobStatus() != IPrintEnvironment::jsOK)
+        break;
+
     Driver_.StartPage();
 
     buffer_t InputLine;
@@ -182,9 +188,10 @@ CCupsFilter<D, DI, LM>::Run(int argc, char* argv[])
     Driver_.EndPage();
     LanguageMonitor_.EndPage();
   }
+  
   Driver_.EndDoc();
   LanguageMonitor_.EndDoc();
-
+    
   cupsRasterClose(RasterData);
   if (fd != 0)
     close(fd);
@@ -193,6 +200,12 @@ CCupsFilter<D, DI, LM>::Run(int argc, char* argv[])
     fputs("ERROR: No pages found!\n", stderr);
   else
     fputs("INFO: Ready to print.\n", stderr);
+	
+  //fputs("DEBUG: DYMO filter hack: sending ESC A at the end\n", stderr);
+  //char buf[2] = {0x1b, 'A'};
+  //write(1, buf, 2);
+  //close(1);	
+
   return (Page == 0);
 }
 
@@ -240,5 +253,5 @@ CCupsFilter<D, DI, LM>::InitDocument(const char* opts)
 #endif
 
 /*
- * End of "$Id: CupsFilter.h 7049 2009-02-06 23:24:54Z vbuzuev $".
+ * End of "$Id: CupsFilter.h 15959 2011-09-02 14:40:29Z pineichen $".
  */

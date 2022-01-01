@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: CupsPrintEnvironment.h 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: CupsPrintEnvironment.h 14901 2011-04-06 10:46:22Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -57,6 +57,7 @@ public:
     
 private:    
   FILE* PRNFile_;
+  IPrintEnvironment::job_status_t JobStatus_;
 };
 
 };
@@ -64,5 +65,5 @@ private:
 #endif
 
 /*
- * End of "$Id: CupsPrintEnvironment.h 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: CupsPrintEnvironment.h 14901 2011-04-06 10:46:22Z aleksandr $".
  */

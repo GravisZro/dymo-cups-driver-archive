@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: LabelWriterLanguageMonitor.cpp 5923 2008-10-24 16:32:06Z vbuzuev $
+// $Id: LabelWriterLanguageMonitor.cpp 15965 2011-09-02 14:48:46Z pineichen $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -23,6 +23,8 @@
 #include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 namespace DymoPrinterDriver
@@ -74,6 +76,18 @@ CLabelWriterLanguageMonitor::EndPage()
   CheckStatusAndReprint();
 }
 
+bool
+CLabelWriterLanguageMonitor::IsLocal()
+{
+  bool bIsLocal = true;
+
+  char* uri = getenv("DEVICE_URI");
+
+  if(uri != NULL)  
+    bIsLocal = (strncmp(uri, "usb://", 6) == 0);
+
+  return bIsLocal;
+}
 
 void
 CLabelWriterLanguageMonitor::SynchronizeRoll()
@@ -94,6 +108,12 @@ void
 CLabelWriterLanguageMonitor::CheckStatusAndReprint()
 {
   fprintf(stderr, "DEBUG: CLabelWriterLanguageMonitor::CheckStatusAndReprint()\n");
+
+  // restore good status of the job
+  SetJobStatus(TOF_BIT);
+
+  if(!IsLocal())
+      return;
 
   while (true) // reprint also can fail, so don't forget to recheck status after reprint
   {
@@ -216,8 +236,14 @@ CLabelWriterLanguageMonitor::PollUntilPaperIn()
   {
     // TODO: use platform-undependend call
     if (UseSleep_)
-      sleep(2);
-
+    {
+      //sleep(2);
+      timespec interval;
+      interval.tv_sec = 0;
+      interval.tv_nsec = 200000000; // 0.2 second
+      nanosleep(&interval, NULL);
+    }
+    
     if (Environment_.GetJobStatus() == IPrintEnvironment::jsDeleted)
       return false;
 
@@ -283,7 +309,7 @@ CLabelWriterLanguageMonitor::SetRoll(CLabelWriterDriverTwinTurbo::roll_t Value)
 
 
 /*
- * End of "$Id: LabelWriterLanguageMonitor.cpp 5923 2008-10-24 16:32:06Z vbuzuev $".
+ * End of "$Id: LabelWriterLanguageMonitor.cpp 15965 2011-09-02 14:48:46Z pineichen $".
  */
 
 

@@ -1,4 +1,4 @@
-# $Id: Makefile.am 7198 2009-02-13 20:07:23Z vbuzuev $
+# $Id: Makefile.am 15958 2011-09-02 14:37:33Z pineichen $
 
 # DYMO LabelWriter Drivers
 # Copyright (C) 2008 Sanford L.P.
@@ -23,6 +23,7 @@ dist_cupsmodel_DATA = \
     lm450.ppd \
     lmpc.ppd \
     lmpc2.ppd \
+    lmpnp.ppd \
     lp350.ppd \
     lw300.ppd \
     lw310.ppd \
@@ -41,7 +42,8 @@ dist_cupsmodel_DATA = \
     lw450t.ppd \
     lw450tt.ppd \
     lw450dl.ppd \
-    lw450dt.ppd
+    lw450dt.ppd \
+    se450.ppd
     
 tests = testppd
 check_PROGRAMS = testppd

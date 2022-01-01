@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: MOCK_LWLMPrintEnvironment.h 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: MOCK_LWLMPrintEnvironment.h 15961 2011-09-02 14:44:07Z pineichen $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -21,6 +21,7 @@
 #ifndef hc8e31bb3_01a5_4422_84b8_64c017e18521
 #define hc8e31bb3_01a5_4422_84b8_64c017e18521
 
+#include <stdlib.h>
 #include "../PrinterDriver.h"
 #include "MOCK_PrintEnvironment.h"
 
@@ -67,7 +68,7 @@ private:
 #endif
 
 /*
- * End of "$Id: MOCK_LWLMPrintEnvironment.h 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: MOCK_LWLMPrintEnvironment.h 15961 2011-09-02 14:44:07Z pineichen $".
  */
 
 

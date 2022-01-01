@@ -1,4 +1,4 @@
-# $Id: Makefile.am 4759 2008-06-19 19:02:27Z vbuzuev $
+# $Id: Makefile.am 15968 2011-09-02 14:56:33Z pineichen $
 
 # DYMO LabelWriter Drivers
 # Copyright (C) 2008 Sanford L.P.
@@ -32,6 +32,8 @@ tests_SOURCES = \
     ../LabelManagerDriver.cpp \
     ../CupsFilterLabelManager.cpp \
     ../CupsFilterLabelManager.h \
+    ../LabelManagerLanguageMonitor.cpp \
+    ../LabelManagerLanguageMonitor.h \
     TestLabelManagerDriver.cpp \
     TestLabelManagerDriver.h   \
     TestLabelManagerFilter.cpp \
@@ -42,5 +44,5 @@ tests_LDADD = $(CUPS_LIBS) -lcppunit -ldl
 INCLUDES = -I../../common -I../../common/tests
 
 #
-#  End of $Id: Makefile.am 4759 2008-06-19 19:02:27Z vbuzuev $
+#  End of $Id: Makefile.am 15968 2011-09-02 14:56:33Z pineichen $
 #

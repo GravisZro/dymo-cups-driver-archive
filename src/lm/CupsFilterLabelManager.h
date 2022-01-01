@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: CupsFilterLabelManager.h 7049 2009-02-06 23:24:54Z vbuzuev $
+// $Id: CupsFilterLabelManager.h 14880 2011-03-31 16:29:05Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -24,6 +24,7 @@
 #include <cups/cups.h>
 #include <cups/raster.h>
 #include "LabelManagerDriver.h"
+#include "LabelManagerLanguageMonitor.h"
 #include "DummyLanguageMonitor.h"
 
 namespace DymoPrinterDriver
@@ -36,11 +37,17 @@ public:
   static void ProcessPageOptions(CLabelManagerDriver& Driver, CDummyLanguageMonitor& LM, cups_page_header2_t& PageHeader);
 };
 
-
+class CDriverInitializerLabelManagerWithLM
+{
+public:
+  static void ProcessPPDOptions (CLabelManagerDriver& Driver, CLabelManagerLanguageMonitor& LM, ppd_file_t* ppd);
+  static void ProcessPageOptions(CLabelManagerDriver& Driver, CLabelManagerLanguageMonitor& LM, cups_page_header2_t& PageHeader);
+};
+    
 }
 
 #endif
 
 /*
- * End of "$Id: CupsFilterLabelManager.h 7049 2009-02-06 23:24:54Z vbuzuev $".
+ * End of "$Id: CupsFilterLabelManager.h 14880 2011-03-31 16:29:05Z aleksandr $".
  */

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: raster2dymolm.cpp 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: raster2dymolm.cpp 14880 2011-03-31 16:29:05Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -24,33 +24,41 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-//#include <signal.h>
 #include <memory>
 #include <string.h>
 
 #include "LabelManagerDriver.h"
+#include "LabelManagerLanguageMonitor.h"
+#include "DummyLanguageMonitor.h"
 #include "CupsPrintEnvironment.h"
 #include "CupsFilter.h"
 #include "CupsFilterLabelManager.h"
 
 using namespace DymoPrinterDriver;
 
+static bool
+IsBackchannelSupported()
+{
+    return true;
+}
 
 int
 main(int argc, char* argv[])
 {
   fputs("DEBUG: starting (raster2dymolm)\n", stderr);
- 
-  //    ppd_file_t* ppd = ppdOpenFile(getenv("PPD"));
-  //    if (!ppd)
-  //    {
-  //        perror("WARNING: Unable to open ppd file, use default settings - ");
-        
-  CCupsFilter<CLabelManagerDriver, CDriverInitializerLabelManager, CDummyLanguageMonitor> Filter;
-  return Filter.Run(argc, argv);      
-  //    }
+
+  if (IsBackchannelSupported())
+  {
+    CCupsFilter<CLabelManagerDriver, CDriverInitializerLabelManagerWithLM, CLabelManagerLanguageMonitor> Filter;
+    return Filter.Run(argc, argv);
+  }
+  else
+  {
+    CCupsFilter<CLabelManagerDriver, CDriverInitializerLabelManager, CDummyLanguageMonitor> Filter;
+    return Filter.Run(argc, argv);
+  }
 }
 
 /*
- * End of "$Id: raster2dymolm.cpp 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: raster2dymolm.cpp 14880 2011-03-31 16:29:05Z aleksandr $".
  */

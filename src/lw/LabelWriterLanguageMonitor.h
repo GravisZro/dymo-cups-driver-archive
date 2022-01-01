@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: LabelWriterLanguageMonitor.h 8484 2009-05-22 21:52:42Z vbuzuev $
+// $Id: LabelWriterLanguageMonitor.h 15006 2011-04-28 15:25:02Z aleksandr $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -44,7 +44,7 @@ public:
     ERROR_BIT           = 0x80,
   };
     
-  CLabelWriterLanguageMonitor(IPrintEnvironment& Environment, bool UseSleep = true, size_t ReadStatusTimeout = 2);
+  CLabelWriterLanguageMonitor(IPrintEnvironment& Environment, bool UseSleep = true, size_t ReadStatusTimeout = 10);
   virtual ~CLabelWriterLanguageMonitor();
     
   virtual void StartDoc();
@@ -62,6 +62,9 @@ public:
 
 protected:
 private:
+  // check if printer is locally connected, i.e. to usb port
+  bool IsLocal();
+
   // send reset command to reset from probably nonproper finished previous job
   void ResetPrinter();
     
@@ -108,5 +111,5 @@ private:
 #endif
 
 /*
- * End of "$Id: LabelWriterLanguageMonitor.h 8484 2009-05-22 21:52:42Z vbuzuev $".
+ * End of "$Id: LabelWriterLanguageMonitor.h 15006 2011-04-28 15:25:02Z aleksandr $".
  */
