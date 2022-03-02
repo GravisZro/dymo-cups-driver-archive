@@ -1,5 +1,3 @@
-# $Id: Makefile.am 4759 2008-06-19 19:02:27Z vbuzuev $
-
 # DYMO LabelWriter Drivers
 # Copyright (C) 2008 Sanford L.P.
 
@@ -18,7 +16,3 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 SUBDIRS = lw lm common/tests
-
-#
-#  End of $Id: Makefile.am 4759 2008-06-19 19:02:27Z vbuzuev $
-#

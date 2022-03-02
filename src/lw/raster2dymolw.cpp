@@ -1,8 +1,8 @@
 // -*- C++ -*-
-// $Id: raster2dymolw.cpp 15043 2011-05-05 17:38:38Z aleksandr $
+// $Id$
 
-// DYMO LabelWriter Drivers
-// Copyright (C) 2008 Sanford L.P.
+// DYMO Printer Drivers
+// Copyright (C) 2016 Sanford L.P.
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,112 +18,51 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#include <cups/cups.h>
-#include <cups/raster.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
-//#include <signal.h>
-#include <memory>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <csignal>
 
-#include "LabelWriterDriver.h"
-#include "LabelWriterLanguageMonitor.h"
-#include "DummyLanguageMonitor.h"
-#include "CupsPrintEnvironment.h"
+#include "LabelWriterDriverV2.h"
+#include "LabelWriterDriverInitializer.h"
+#include "LabelWriterLanguageMonitorV2.h"
 #include "CupsFilter.h"
-#include "CupsFilterLabelWriter.h"
 
 using namespace DymoPrinterDriver;
 
+CCupsFilter<CLabelWriterDriverV2, CLabelWriterDriverInitializerWithLM, CLabelWriterLanguageMonitorV2> gFilter;
 
-//#define CUPS_12 1
-static bool
-IsBackchannelSupported()
+int main(int argc, char * argv[])
 {
-  return true;
+    // Filters and backends may also receive SIGPIPE when an upstream or downstream filter/backend exits
+    // with a non-zero status. Developers should generally ignore SIGPIPE
+    signal(SIGPIPE, SIG_IGN);
 
-  // if the backend channel is supported the fd is 3
-  //struct stat stat;   
+    auto signal_handler = [](int sig_num) {
+        // make sure to unlock synchronization mutex in case process is abnormally terminated
+        fprintf(stderr, "Received signal %d, aborting\n", sig_num);
+        gFilter.Abort();
+    };
 
-  //return fstat(3, &stat) == 0;
+    struct sigaction sa;
+    sa.sa_handler = signal_handler;
+    sa.sa_flags = SA_RESTART;
+
+    sigemptyset(&sa.sa_mask);
+    sigaddset(&sa.sa_mask, SIGHUP);
+    sigaddset(&sa.sa_mask, SIGINT);
+    sigaddset(&sa.sa_mask, SIGQUIT);
+    sigaddset(&sa.sa_mask, SIGILL);
+    sigaddset(&sa.sa_mask, SIGABRT);
+    sigaddset(&sa.sa_mask, SIGSEGV);
+    sigaddset(&sa.sa_mask, SIGTERM);
+    sigaddset(&sa.sa_mask, SIGTSTP);
+
+    sigaction(SIGHUP, &sa, NULL);
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+    sigaction(SIGILL, &sa, NULL);
+    sigaction(SIGABRT, &sa, NULL);
+    sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGTSTP, &sa, NULL);
+
+    return gFilter.Run(argc, argv);
 }
-
-int
-main(int argc, char* argv[])
-{
-  fputs("DEBUG: starting (raster2dymolw)\n", stderr);
- 
-  ppd_file_t* ppd = ppdOpenFile(getenv("PPD"));
-  if (!ppd)
-  {
-    perror("WARNING: Unable to open ppd file, use default settings - ");
-
-    if (IsBackchannelSupported())
-    {
-      CCupsFilter<CLabelWriterDriver, CDriverInitializerLabelWriterWithLM, CLabelWriterLanguageMonitor> Filter;
-      return Filter.Run(argc, argv);
-    }
-    else
-    {
-      CCupsFilter<CLabelWriterDriver, CDriverInitializerLabelWriter, CDummyLanguageMonitor> Filter;
-      return Filter.Run(argc, argv);
-    }
-  }
-  else
-  {
-    if (!strcasecmp(ppd->modelname, "DYMO LabelWriter Twin Turbo")
-        || !strcasecmp(ppd->modelname, "DYMO LabelWriter 450 Twin Turbo"))
-    {
-      if (IsBackchannelSupported())
-      {
-        CCupsFilter<CLabelWriterDriverTwinTurbo, CDriverInitializerLabelWriterTwinTurboWithLM, CLabelWriterLanguageMonitor> Filter;
-        return Filter.Run(argc, argv);      
-      }
-      else
-      {
-        CCupsFilter<CLabelWriterDriverTwinTurbo, CDriverInitializerLabelWriterTwinTurbo, CDummyLanguageMonitor> Filter;
-        return Filter.Run(argc, argv);
-      }
-    }   
-    else if (!strcasecmp(ppd->modelname, "DYMO LabelWriter 400")
-    || !strcasecmp(ppd->modelname, "DYMO LabelWriter 400 Turbo")
-    || !strcasecmp(ppd->modelname, "DYMO LabelWriter DUO Label")
-    || !strcasecmp(ppd->modelname, "DYMO LabelWriter 4XL")
-    || !strcasecmp(ppd->modelname, "DYMO LabelWriter 450")
-    || !strcasecmp(ppd->modelname, "DYMO LabelWriter 450 Turbo")
-    || !strcasecmp(ppd->modelname, "DYMO LabelWriter 450 DUO Label"))
-    {
-      if (IsBackchannelSupported())
-      {
-        CCupsFilter<CLabelWriterDriver400, CDriverInitializerLabelWriterWithLM, CLabelWriterLanguageMonitor> Filter;
-        return Filter.Run(argc, argv);
-      }
-      else
-      {
-        CCupsFilter<CLabelWriterDriver400, CDriverInitializerLabelWriter, CDummyLanguageMonitor> Filter;
-        return Filter.Run(argc, argv);
-      }
-    }
-    else
-    {
-      if (IsBackchannelSupported())
-      {
-        CCupsFilter<CLabelWriterDriver, CDriverInitializerLabelWriterWithLM, CLabelWriterLanguageMonitor> Filter;
-        return Filter.Run(argc, argv);
-      }
-      else
-      {
-        CCupsFilter<CLabelWriterDriver, CDriverInitializerLabelWriter, CDummyLanguageMonitor> Filter;
-        return Filter.Run(argc, argv);
-      }
-    }    
-  }
-}
-
-/*
- * End of "$Id: raster2dymolw.cpp 15043 2011-05-05 17:38:38Z aleksandr $".
- */

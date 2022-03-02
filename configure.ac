@@ -1,5 +1,3 @@
-# $Id: CupsPrintEnvironment.cpp 1216 2006-12-18 16:51:12Z vbuzuev $
-
 # DYMO LabelWriter Drivers
 # Copyright (C) 2008 Sanford L.P.
 
@@ -18,9 +16,9 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 AC_PREREQ(2.59)
-AC_INIT(dymo-cups-drivers, 1.4.0.5, vbuzuev@dymo.com)
-AM_INIT_AUTOMAKE(dymo-cups-drivers, 1.4.0.5)
-AC_CONFIG_SRCDIR([src/lw/CupsFilterLabelWriter.h])
+AC_INIT(dymo-cups-drivers, 2.0.0.0, philipp.ineichen@dymo.com)
+AM_INIT_AUTOMAKE([subdir-objects])
+AC_CONFIG_SRCDIR([src/lw/LabelWriterDriver.h])
 AC_CONFIG_HEADER([src/config.h])
 
 # get cups dirs
@@ -51,18 +49,8 @@ fi
 cupsmodeldir=${cupsdatadir}/model
 cupsfilterdir=${cupsserverbindir}/filter
 
-#check that cups dirs are corrects
-#if test ! -d $cupsmodeldir; then
-#    AC_ERROR([CUPS model dir '$cupsmodeldir' is not existed. Check your params for CUPS dirs])
-#fi
-
-#if test ! -d $cupsfilterdir; then
-#    AC_ERROR([CUPS filter dir '$cupsfilterdir' is not existed. Check your params for CUPS dirs])
-#fi
-
 AC_SUBST(cupsmodeldir)
 AC_SUBST(cupsfilterdir)
-
 
 AC_ARG_ENABLE([samples],
 [  --enable-samples    Build with samples],
@@ -91,14 +79,13 @@ debug_flags=""
 optimization_flags="-O2"
 CXXFLAGS="${optimization_flags} ${warning_flags} ${debug_flags} ${cups_cflags}"
 
-
 AC_CHECK_LIB(cups, cupsMarkOptions, , AC_ERROR([Can't find cups library]))
 AC_CHECK_LIB(cupsimage, cupsRasterReadHeader, , AC_ERROR([Can't find cupsimage library]))
 AC_CHECK_HEADERS([cups/cups.h cups/raster.h],, AC_ERROR([Can't find cups headers]))
 
-#CUPS_LIBS=`cups-config --image --libs`
-#CUPS_LIBS="-lcups -lcupsimage"
-CUPS_LIBS=""
+AC_CHECK_LIB(pthread, pthread_create,, AC_ERROR([Can't find pthread library]))
+AC_CHECK_HEADERS([pthread.h],, AC_ERROR([Can't find pthread headers]))
+
 AC_SUBST(CUPS_LIBS)
 
 # Checks for programs.

@@ -1,5 +1,3 @@
-# $Id: Makefile.am 15967 2011-09-02 14:54:28Z pineichen $
-
 # DYMO LabelWriter Drivers
 # Copyright (C) 2008 Sanford L.P.
 
@@ -19,33 +17,31 @@
 
 SUBDIRS = tests
 
-INCLUDES = -I../common
+cupsfilter_PROGRAMS = raster2dymolm_v2
 
-cupsfilter_PROGRAMS = raster2dymolm
-
-raster2dymolm_SOURCES = \
+raster2dymolm_v2_SOURCES = \
     raster2dymolm.cpp \
-    LabelManagerDriver.cpp \
     LabelManagerDriver.h \
-    CupsFilterLabelManager.cpp \
-    CupsFilterLabelManager.h \
-    LabelManagerLanguageMonitor.cpp \
+    LabelManagerDriverV2.cpp \
+    LabelManagerDriverV2.h \
+    LabelManagerDriverInitializer.cpp \
+    LabelManagerDriverInitializer.h \
     LabelManagerLanguageMonitor.h \
+    LabelManagerLanguageMonitorV2.cpp \
+    LabelManagerLanguageMonitorV2.h \
     ../common/CupsPrintEnvironment.cpp \
     ../common/CupsPrintEnvironment.h \
     ../common/CupsFilter.h \
+    ../common/CupsUtils.cpp \
+    ../common/CupsUtils.h \
+    ../common/CommonTypedefs.h \
     ../common/PrinterDriver.h \
     ../common/Halftoning.h \
-    ../common/Halftoning.cpp \
     ../common/ErrorDiffusionHalftoning.h \
-    ../common/ErrorDiffusionHalftoning.cpp \
     ../common/NonLinearLaplacianHalftoning.h \
     ../common/NonLinearLaplacianHalftoning.cpp \
-    ../common/DummyLanguageMonitor.cpp \
     ../common/DummyLanguageMonitor.h
         
-raster2dymolm_LDADD = $(CUPS_LIBS)
+raster2dymolm_v2_LDADD = $(CUPS_LIBS)
 
-#
-#  End of $Id: Makefile.am 15967 2011-09-02 14:54:28Z pineichen $
-#
+AM_CPPFLAGS = -I../common -std=c++14

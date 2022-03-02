@@ -1,8 +1,8 @@
 // -*- C++ -*-
-// $Id: CupsPrintEnvironment.h 14901 2011-04-06 10:46:22Z aleksandr $
+// $Id$
 
-// DYMO LabelWriter Drivers
-// Copyright (C) 2008 Sanford L.P.
+// DYMO Printer Drivers
+// Copyright (C) 2016 Sanford L.P.
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,52 +18,41 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#ifndef h952b1c81_8931_433a_8479_7ae6d8e85a86
-#define h952b1c81_8931_433a_8479_7ae6d8e85a86
-
 #include "PrinterDriver.h"
 
 namespace DymoPrinterDriver
 {
 
-// this is environment for a driver
-// this env will be forward output to LM also
 class CCupsPrintEnvironmentForDriver: public IPrintEnvironment
 {
 public:
-  CCupsPrintEnvironmentForDriver(ILanguageMonitor& LanguageMonitor);
-  virtual ~CCupsPrintEnvironmentForDriver();
-  virtual void WriteData(const buffer_t& DataBuffer);
-  virtual void ReadData(buffer_t& DataBuffer);
-  virtual job_status_t GetJobStatus();
-  virtual void SetJobStatus(job_status_t JobStatus);
-    
-private:    
-  FILE* PRNFile_;
-  ILanguageMonitor& LanguageMonitor_;
+    CCupsPrintEnvironmentForDriver(ILanguageMonitor& LanguageMonitor);
+    virtual ~CCupsPrintEnvironmentForDriver();
+    virtual bool WriteData(const buffer_t& DataBuffer);
+    virtual bool ReadData(buffer_t& DataBuffer);
+    virtual job_status_t GetJobStatus() { return jsOK; }
+    virtual void SetJobStatus(job_status_t JobStatus) {}
+
+private:
+    FILE* PRNFile_;
+    ILanguageMonitor& LanguageMonitor_;
 };
 
-// this is environment for a language monitor
-// it simple output it is data to CUPS file descriptor
 class CCupsPrintEnvironmentForLM: public IPrintEnvironment
 {
 public:
-  CCupsPrintEnvironmentForLM();
-  virtual ~CCupsPrintEnvironmentForLM();
-  virtual void WriteData(const buffer_t& DataBuffer);
-  virtual void ReadData(buffer_t& DataBuffer);
-  virtual job_status_t GetJobStatus();
-  virtual void SetJobStatus(job_status_t JobStatus);
-    
+    CCupsPrintEnvironmentForLM();
+    virtual ~CCupsPrintEnvironmentForLM();
+    virtual bool WriteData(const buffer_t& DataBuffer);
+    virtual bool ReadData(buffer_t& DataBuffer);
+    virtual job_status_t GetJobStatus();
+    virtual void SetJobStatus(job_status_t JobStatus);
+
 private:    
-  FILE* PRNFile_;
-  IPrintEnvironment::job_status_t JobStatus_;
+    IPrintEnvironment::job_status_t JobStatus_;
+    bool isBluetooth_;
+    bool isBonjour_;
+    double timeout_;
 };
 
 };
-
-#endif
-
-/*
- * End of "$Id: CupsPrintEnvironment.h 14901 2011-04-06 10:46:22Z aleksandr $".
- */

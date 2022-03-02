@@ -1,8 +1,8 @@
 // -*- C++ -*-
-// $Id: CupsPrintEnvironment.cpp 14976 2011-04-26 15:24:48Z aleksandr $
+// $Id$
 
-// DYMO LabelWriter Drivers
-// Copyright (C) 2008 Sanford L.P.
+// DYMO Printer Drivers
+// Copyright (C) 2016 Sanford L.P.
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,152 +18,130 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+#include <cups/cups.h>
+#include <cups/sidechannel.h>
 #include <stdio.h>
 #include <string>
-#include "CupsPrintEnvironment.h"
 #include <errno.h>
-#include <cups/cups.h>
 #include <cassert>
+#include <limits.h>
+#include "CupsPrintEnvironment.h"
 
 namespace DymoPrinterDriver
 {
 
-CCupsPrintEnvironmentForDriver::CCupsPrintEnvironmentForDriver(ILanguageMonitor& LanguageMonitor): 
-  PRNFile_(NULL), LanguageMonitor_(LanguageMonitor)
+CCupsPrintEnvironmentForDriver::CCupsPrintEnvironmentForDriver(ILanguageMonitor& LanguageMonitor):
+    PRNFile_(NULL), LanguageMonitor_(LanguageMonitor)
 {
-  const char* PrnDir = getenv("DYMO_PRN_DIR");
-  if (PrnDir)
-  {
-    std::string FileName = PrnDir;
-    if (getenv("PRINTER"))
-      FileName += getenv("PRINTER");
-    else
-      FileName += "~dymo";
-    FileName += ".prn";        
-    PRNFile_ = fopen(FileName.c_str(), "w+b");    
-  }   
+    char prnPath[PATH_MAX] = {0};
+
+    const char* tmpDir = NULL;
+    if((tmpDir = getenv("TMPDIR")) == NULL)
+        tmpDir = "/tmp";
+
+    sprintf(prnPath, "%s/dymo_cups.prn", tmpDir);
+
+    PRNFile_ = fopen(prnPath, "w+b");
 }
 
 CCupsPrintEnvironmentForDriver::~CCupsPrintEnvironmentForDriver()
 {
-  if (PRNFile_)
-    fclose(PRNFile_);    
+    if(PRNFile_)
+        fclose(PRNFile_);
 }
 
-
-void
-CCupsPrintEnvironmentForDriver::WriteData(const buffer_t& DataBuffer)
+bool CCupsPrintEnvironmentForDriver::WriteData(const buffer_t& DataBuffer)
 {
-  fprintf(stderr, "DEBUG: CCupsPrintEnvironmentForDriver::WriteData() buffer size is %i\n", (int)DataBuffer.size());
-
-  if (DataBuffer.size())
-  {
-    //fwrite(&DataBuffer[0], 1, DataBuffer.size(), stdout);
-    if (write(1, &DataBuffer[0], DataBuffer.size()) == -1)
+    if(DataBuffer.size())
     {
-      fprintf(stderr, "ERROR: CCupsPrintEnvironmentForDriver::WriteData() write() failed, errno=%d\n", errno);
+        ssize_t size = write(1, &DataBuffer[0], DataBuffer.size());
 
+        if(size == -1)
+            fprintf(stderr, "%s: write() failed, errno = %d\n", __FUNCTION__, errno);
+
+        if(PRNFile_)
+            fwrite(&DataBuffer[0], 1, DataBuffer.size(), PRNFile_);
+
+        LanguageMonitor_.ProcessData(DataBuffer);
+
+        return size == DataBuffer.size();
     }
-    
-    if (PRNFile_)
-    {
-      size_t res = fwrite(&DataBuffer[0], 1, DataBuffer.size(), PRNFile_);
-      fprintf(stderr, "DEBUG: CCupsPrintEnvironmentForDriver::WriteData() PRN fwrite result is %i\n", (int)res);
-    }
-            
-    LanguageMonitor_.ProcessData(DataBuffer);    
-  }        
+
+    return false;
 }
 
-void 
-CCupsPrintEnvironmentForDriver::ReadData(buffer_t& DataBuffer)
+bool CCupsPrintEnvironmentForDriver::ReadData(buffer_t& DataBuffer)
 {
-  // do nothing - driver is not able to read data, only LM is
-    
-  DataBuffer.clear();
+    DataBuffer.clear();
+    return true;
 }
-
-IPrintEnvironment::job_status_t
-CCupsPrintEnvironmentForDriver::GetJobStatus()
-{
-  return jsOK;
-}
-
-void
-CCupsPrintEnvironmentForDriver::SetJobStatus(job_status_t JobStatus)
-{
-}
-
-
-///////////////////////////////////////////////////////////////////////
-// CCupsPrintEnvironmentForLM
-///////////////////////////////////////////////////////////////////////
 
 CCupsPrintEnvironmentForLM::CCupsPrintEnvironmentForLM()
 {
+    const char* deviceURI = NULL;
+    if((deviceURI = getenv("DEVICE_URI")) == NULL)
+        deviceURI = "";
+
+    isBonjour_ = (strncmp(deviceURI, "dnssd", 5) == 0);
+    isBluetooth_ = (strncmp(deviceURI, "bluetooth", 9) == 0);
+
+    if(isBonjour_)
+        timeout_ = 5.0;
+    else if(isBluetooth_)
+        timeout_ = 30.0;
+    else // USB
+        timeout_ = 2.5;
 }
 
 CCupsPrintEnvironmentForLM::~CCupsPrintEnvironmentForLM()
 {
 }
 
-
-void
-CCupsPrintEnvironmentForLM::WriteData(const buffer_t& DataBuffer)
+bool CCupsPrintEnvironmentForLM::WriteData(const buffer_t& DataBuffer)
 {
-  fprintf(stderr, "DEBUG: CCupsPrintEnvironmentForLM::WriteData() buffer size is %i\n", (int)DataBuffer.size());
-  if (DataBuffer.size())
-  {
-    //fwrite(&DataBuffer[0], 1, DataBuffer.size(), stdout);
-    //fflush(stdout);
-    if (write(1, &DataBuffer[0], DataBuffer.size()) == -1)
+    if(DataBuffer.size())
     {
-      fprintf(stderr, "ERROR: CCupsPrintEnvironmentForLM::WriteData() write() failed, errno=%d\n", errno);
+        ssize_t size = write(1, &DataBuffer[0], DataBuffer.size());
 
+        if(size == -1)
+            fprintf(stderr, "%s: write() failed, errno = %d\n", __FUNCTION__, errno);
+
+        return size == DataBuffer.size();
     }
-  }
+
+    return false;
 }
 
-void 
-CCupsPrintEnvironmentForLM::ReadData(buffer_t& DataBuffer)
+bool CCupsPrintEnvironmentForLM::ReadData(buffer_t& DataBuffer)
 {
-  //TODO: add the implementation here
-  // note that CUPS 1.1 does not support reading data from the printer
-  // only CUPS 1.2 supports 
-  // there should be API to read the 'back-channel' safely
-  // also the data is avalable using read file with fd == 3
-    
-  DataBuffer.clear();
+    DataBuffer.clear();
 
-  byte buf[16];
-  ssize_t bytesRead = cupsBackChannelRead((char*)buf, sizeof(buf), 2.5);
-  if (bytesRead == -1)
-    fprintf(stderr, "DEBUG: CCupsPrintEnvironmentForLM::ReadData() unable to read data, errno=%d\n", errno);
-  else if (bytesRead == 0)
-    fprintf(stderr, "DEBUG: CCupsPrintEnvironmentForLM::ReadData() no data\n");
-  else
-  {
-    //DataBuffer.push_back(buf[bytesRead - 1]);
-    DataBuffer.insert(DataBuffer.begin(), buf, buf + bytesRead);
+    byte buf[64];
 
-    fprintf(stderr, "DEBUG: CCupsPrintEnvironmentForLM::ReadData() has read %i bytes %x\n", (int)bytesRead, int(DataBuffer[0])); 
-  }
+    ssize_t size = cupsBackChannelRead((char*)buf, sizeof(buf), timeout_);
+    if(size == -1)
+        fprintf(stderr, "%s: unable to read data, errno = %d\n", __FUNCTION__, errno);
+    else if(size == 0)
+        fprintf(stderr, "%s: no data\n", __FUNCTION__);
+    else
+        DataBuffer.insert(DataBuffer.begin(), buf, buf + size);
+
+    return (size != -1);
 }
 
-IPrintEnvironment::job_status_t
-CCupsPrintEnvironmentForLM::GetJobStatus()
+IPrintEnvironment::job_status_t CCupsPrintEnvironmentForLM::GetJobStatus()
 {
-  return JobStatus_;
+    return JobStatus_;
 }
 
-void
-CCupsPrintEnvironmentForLM::SetJobStatus(job_status_t JobStatus)
+void CCupsPrintEnvironmentForLM::SetJobStatus(job_status_t JobStatus)
 {
     JobStatus_ = JobStatus;
 
     switch (JobStatus)
     {
         case jsOK:
+        case jsDeleted:
             fputs("STATE: none\n", stderr);
             break;
         case jsPaperOut:
@@ -184,21 +162,15 @@ CCupsPrintEnvironmentForLM::SetJobStatus(job_status_t JobStatus)
         case jsSlotStatusError:
             fputs("STATE: com.dymo.slot-status-error\n", stderr);
             break;
+        case jsCounterfeitError:
+            fputs("STATE: com.dymo.counterfeit-error\n", stderr);
+            break;
         case jsBusy:
             fputs("STATE: com.dymo.busy-error\n", stderr);
             break;
         default:
             assert(0);
     }
-    
 }
 
-} // namespace
-
-/*
- * End of "$Id: CupsPrintEnvironment.cpp 14976 2011-04-26 15:24:48Z aleksandr $".
- */
-
-
-
-
+}

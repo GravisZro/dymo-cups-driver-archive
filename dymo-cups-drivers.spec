@@ -1,5 +1,3 @@
-# $Id: dymo-cups-drivers.spec 4913 2008-07-10 22:17:43Z vbuzuev $
-
 #    DYMO LabelWriter Drivers
 #    Copyright (C) 2008 Sanford L.P.
 
@@ -19,7 +17,7 @@
 
 Summary: DYMO LabelWriter Drivers for CUPS
 Name: dymo-cups-drivers
-Version: 1.0.1
+Version: 2.0.0.0
 Release: 0
 License: GPL
 Group: System Environment/Libraries
@@ -32,7 +30,7 @@ Vendor: DYMO
 BuildRoot: /var/tmp/%{name}-root
 
 # Dependencies...
-#Requires: cups, cups-devel
+#Requires: libcups2-dev, libcupsimage2-dev
 
 
 %description

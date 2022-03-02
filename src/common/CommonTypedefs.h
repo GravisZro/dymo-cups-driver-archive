@@ -1,8 +1,8 @@
 // -*- C++ -*-
-// $Id: CommonTypedefs.h 14976 2011-04-26 15:24:48Z aleksandr $
+// $Id: CommonTypedefs.h 40126 2016-02-11 17:13:57Z pineichen $
 
-// DYMO LabelWriter Drivers
-// Copyright (C) 2008 Sanford L.P.
+// DYMO Printer Drivers
+// Copyright (C) 2016 Sanford L.P.
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,25 +18,18 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-
-#ifndef haf1c6298_a459_4417_83c1_ed084705400a
-#define haf1c6298_a459_4417_83c1_ed084705400a
+#ifndef COMMON_TYPE_DEF_H
+#define COMMON_TYPE_DEF_H
 
 #include <vector>
 
-//namespace dymo
 namespace DymoPrinterDriver
 {
-    
-typedef unsigned char       byte;
-typedef unsigned int        dword;
-typedef std::vector<byte>   buffer_t;    
+
+typedef unsigned char byte;
+typedef unsigned int dword;
+typedef std::vector<byte> buffer_t;
 
 } // namespace
 
-
 #endif
-
-/*
- * End of "$Id: CommonTypedefs.h 14976 2011-04-26 15:24:48Z aleksandr $".
- */

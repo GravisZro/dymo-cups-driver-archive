@@ -1,5 +1,3 @@
-# $Id: Makefile.am 4760 2008-06-19 22:21:35Z vbuzuev $
-
 # DYMO LabelWriter Drivers
 # Copyright (C) 2008 Sanford L.P.
 
@@ -19,7 +17,3 @@
 
 SUBDIRS = src ppd docs samples
 EXTRA_DIST = dymo-cups-drivers.spec LICENSE
-
-#
-#  $Id: Makefile.am 4760 2008-06-19 22:21:35Z vbuzuev $
-#

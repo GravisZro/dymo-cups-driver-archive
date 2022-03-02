@@ -1,8 +1,8 @@
 // -*- C++ -*-
-// $Id: DummyLanguageMonitor.h 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: DummyLanguageMonitor.h 40126 2016-02-11 17:13:57Z pineichen $
 
-// DYMO LabelWriter Drivers
-// Copyright (C) 2008 Sanford L.P.
+// DYMO Language Monitor
+// Copyright (C) 2016 Sanford L.P.
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,39 +18,32 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#ifndef h4fe065b4_5177_4f82_ba6f_1a3b42b475ef
-#define h4fe065b4_5177_4f82_ba6f_1a3b42b475ef
+#ifndef DUMMY_LANGUAGE_MONITOR_H
+#define DUMMY_LANGUAGE_MONITOR_H
 
 #include "PrinterDriver.h"
 
 namespace DymoPrinterDriver
 {
 
-
-class CDummyLanguageMonitor: public ILanguageMonitor
+class CDummyLanguageMonitor : public ILanguageMonitor
 {
 public:
-  CDummyLanguageMonitor(IPrintEnvironment& Environment);
-  virtual ~CDummyLanguageMonitor();
+   CDummyLanguageMonitor(IPrintEnvironment& Environment) : _environment(Environment) {}
+   virtual ~CDummyLanguageMonitor() {}
     
-  virtual void StartDoc();
-  virtual void EndDoc();
+   virtual void StartDoc() {}
+   virtual void EndDoc() {}
 
-  virtual void StartPage();
-  virtual void EndPage();
+   virtual void StartPage() {}
+   virtual void EndPage() {}
     
-  virtual void ProcessData(const buffer_t& Data);
+   virtual void ProcessData(const buffer_t& Data) {}
     
-protected:
 private:
-  IPrintEnvironment& Environment_;
+   IPrintEnvironment& _environment;
 };
 
-
-}; //namespace
+};
 
 #endif
-
-/*
- * End of "$Id: DummyLanguageMonitor.h 4759 2008-06-19 19:02:27Z vbuzuev $".
- */

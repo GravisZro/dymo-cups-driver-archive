@@ -1,8 +1,8 @@
 // -*- C++ -*-
-// $Id: NonLinearLaplacianHalftoning.cpp 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: $
 
-// DYMO LabelWriter Drivers
-// Copyright (C) 2008 Sanford L.P.
+// DYMO Printer Drivers
+// Copyright (C) 2016 Sanford L.P.
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,618 +29,403 @@ namespace DymoPrinterDriver
 class CNLLBlock
 {
 public:
-  // create a block from image with coordinates of pixel #1 at (x1, y1)
-  CNLLBlock(CNLLHalftoning& Parent, const CHalftoneFilter::image_buffer_t& Image, int x1, int y1, CHalftoneFilter::image_buffer_t& OutputImage);
+   // create a block from image with coordinates of pixel #1 at (x1, y1)
+   CNLLBlock(CNLLHalftoning& Parent, const CHalftoneFilter::image_buffer_t& Image, int x1, int y1, CHalftoneFilter::image_buffer_t& OutputImage);
     
-  // return true if at least on pixels of the block is insize the image
-  bool IsInImage();
+   // return true if at least on pixels of the block is insize the image
+   bool IsInImage();
     
-  // fill block information
-  void FillBlock(); 
-  void OutputBlock();
+   // fill block information
+   void FillBlock(); 
+   void OutputBlock();
         
 private:
-  // return intense value of the block - original number of pixels to draw in 'black'
-  size_t GetBlockIntenseValue();
+   // return intense value of the block - original number of pixels to draw in 'black'
+   size_t GetBlockIntenseValue();
     
-  // fill info for one of 18 pixels
-  // PixelNo - ordinal number of the pixel in the block
-  // (x, y)  - coords of the pixel in original image
-  void FillPixel(size_t PixelNo, int x, int y);
+   // fill info for one of 18 pixels
+   // PixelNo - ordinal number of the pixel in the block
+   // (x, y)  - coords of the pixel in original image
+   void FillPixel(size_t PixelNo, int x, int y);
     
-  // Split class 1 pixels to class 2 and class 5 to class 4
-  void ReduceClasses();
-  void ReduceClasses(size_t ClassFrom, size_t ClassTo);
+   // Split class 1 pixels to class 2 and class 5 to class 4
+   void ReduceClasses();
+   void ReduceClasses(size_t ClassFrom, size_t ClassTo);
     
-  // return Laplacian value for pixel with coords (x, y)
-  int GetNLL(int x, int y);
+   // return Laplacian value for pixel with coords (x, y)
+   int GetNLL(int x, int y);
     
-  // return grayscale value [0, 255] of pixel with coords (x, y)
-  int GetPixelGray(int x, int y);
+   // return grayscale value [0, 255] of pixel with coords (x, y)
+   int GetPixelGray(int x, int y);
 
-  // output Pixels of specific class
-  // return number of pixels drawn
-  size_t  OutputClass(size_t ClassNo, size_t MaxPixelsToOutput);
+   // output Pixels of specific class
+   // return number of pixels drawn
+   size_t  OutputClass(size_t ClassNo, size_t MaxPixelsToOutput);
     
-  void OutputPixel(size_t PixelNo);
-  void OutputPixel(int x, int y);
+   void OutputPixel(size_t PixelNo);
+   void OutputPixel(int x, int y);
 
-  // return true if pixel (x, y) is inside image
-  bool IsInImage(int x, int y);
+   // return true if pixel (x, y) is inside image
+   bool IsInImage(int x, int y);
     
-  CNLLHalftoning&                         Parent_;
-  const CHalftoneFilter::image_buffer_t&  Image_;
-  CHalftoneFilter::image_buffer_t&        OutputImage_;
-  int                                     x1_;
-  int                                     y1_;
+   CNLLHalftoning& _parent;
+   const CHalftoneFilter::image_buffer_t& _image;
+   CHalftoneFilter::image_buffer_t& _outputImage;
+   int _x1;
+   int _y1;
 
-  std::vector<int>                        Pixels_;   // pixels' gray values
-  std::vector<size_t>                     Classes_;  // pixels' classes
-  size_t                                  ImageWidth_;
-  size_t                                  ImageHeight_;
+   std::vector<int> _pixels;   // pixels' gray values
+   std::vector<size_t> _classes;  // pixels' classes
+   size_t _imageWidth;
+   size_t _imageHeight;
     
-  typedef struct
-  {
-    int x;
-    int y;
-  } point_t;
+   typedef struct
+   {
+      int x;
+      int y;
+   } point_t;
     
-  typedef struct
-  {
-    size_t p1;
-    size_t p2;
-    size_t p3;
-    size_t p4;
-  } square_block_t;
+   typedef struct
+   {
+      size_t p1;
+      size_t p2;
+      size_t p3;
+      size_t p4;
+   } square_block_t;
 
-  static const point_t        PixelOffsets_[18];
-  static const square_block_t Squares_[8];
+   static const point_t _pixelOffsets[18];
+   static const square_block_t _squares[8];
 };
 
-/*
-  original
-  const CNLLBlock::point_t CNLLBlock::PixelOffsets_[18] = 
-  {
-  { 0,  0},
-  {-1,  0},
-  { 0, -1},
-  {-1, -1},
-  { 0,  1},
-  {-1,  1},
-  { 1,  0},
-  {-2,  0},
-  { 1, -1},
-  {-2, -1},
-  { 1,  1},
-  {-2,  1},
-  { 0, -2},
-  {-1, -2},
-  { 0,  2},
-  {-1,  2},
-  { 2,  0},
-  {-3,  0},
-  };
-*/
-
-/*
-  const CNLLBlock::point_t CNLLBlock::PixelOffsets_[18] = 
-  {
-  { 0,  0},
-  {-1, -2},
-  { 0,  2},
-  {-3,  0},
-  { 2,  0},
-  {-1, -1},
-  { 1,  1},
-  {-1,  1},
-  { 1, -1},
-  {-1,  2},
-  { 0, -2},
-  {-2, -1},
-  {-2,  1},
-  { 0, -1},
-  {-2,  0},
-  { 1,  0},
-  {-1,  0},
-  { 0,  1},
-  };
-
-  const CNLLBlock::square_block_t CNLLBlock::Squares_[8] = 
-  {
-  { 2, 11,  6, 14},
-  {12,  6, 15, 17},
-  { 6, 14, 17,  1},
-  {14,  9,  1, 16},
-  {15, 17, 13,  8},
-  {17,  1,  8, 18},
-  { 1, 16, 18,  7},
-  { 8, 18, 10,  3}    
-  };
-*/
-
-/* good
-   const CNLLBlock::point_t CNLLBlock::PixelOffsets_[18] = 
-   {
+const CNLLBlock::point_t CNLLBlock::_pixelOffsets[18] = 
+{
    { 0,  0},
-   {-1, -1},
-   { 1,  1},
    {-1,  1},
+   {-1, -1},
    { 1, -1},
+   { 1,  1},
    {-2,  0},
    { 2,  0},
    { 0, -2},
    { 0,  2},
    {-1,  0},
    {-2, -1},
-   { 0,  1},
    {-2,  1},
    { 0, -1},
+   { 0,  1},
    {-3,  0},
    {-1, -2},
    {-1,  2},
    { 1,  0},
-   };
-
-   const CNLLBlock::square_block_t CNLLBlock::Squares_[8] = 
-   {
-   {16,  8,  2, 14},
-   {11,  2,  6, 10},
-   { 2, 14, 10,  1},
-   {14,  5,  1, 18},
-   { 6, 10, 13,  4},
-   {10,  1,  4, 12},
-   { 1, 18, 12,  3},
-   { 4, 12, 17,  9}    
-   };
-*/
-
-const CNLLBlock::point_t CNLLBlock::PixelOffsets_[18] = 
-{
-  { 0,  0},
-  {-1,  1},
-  {-1, -1},
-  { 1, -1},
-  { 1,  1},
-  {-2,  0},
-  { 2,  0},
-  { 0, -2},
-  { 0,  2},
-  {-1,  0},
-  {-2, -1},
-  {-2,  1},
-  { 0, -1},
-  { 0,  1},
-  {-3,  0},
-  {-1, -2},
-  {-1,  2},
-  { 1,  0},
 };
 
-const CNLLBlock::square_block_t CNLLBlock::Squares_[8] = 
+const CNLLBlock::square_block_t CNLLBlock::_squares[8] = 
 {
-  {17,  8,  3, 13},
-  {11,  3,  6, 10},
-  { 3, 13, 10,  1},
-  {13,  4,  1, 18},
-  { 6, 10, 12,  2},
-  {10,  1,  2, 14},
-  { 1, 18, 14,  5},
-  { 2, 14, 16,  9}    
+   {17,  8,  3, 13},
+   {11,  3,  6, 10},
+   { 3, 13, 10,  1},
+   {13,  4,  1, 18},
+   { 6, 10, 12,  2},
+   {10,  1,  2, 14},
+   { 1, 18, 14,  5},
+   { 2, 14, 16,  9}    
 };
 
 
-/*
-  const CNLLBlock::point_t CNLLBlock::PixelOffsets_[18] = 
-  {
-  { 0,  0},
-  {-1, -2},
-  { 0,  2},
-  {-3,  0},
-  { 2,  0},
-  {-2,  1},
-  { 1, -1},
-  {-1,  0},
-  { 1,  1},
-  {-2, -1},
-  {-1,  1},
-  { 0, -2},
-  { 1,  0},
-  {-1,  2},
-  {-1, -1},
-  { 0,  1},
-  {-2,  0},
-  { 0, -1},
-  };
-*/
-
-CNLLHalftoning::CNLLHalftoning(int Threshold, image_t InputImageType, image_t OutputImageType): 
-  CHalftoneFilter(InputImageType, OutputImageType), Threshold_(Threshold)
+CNLLHalftoning::CNLLHalftoning(int Threshold, image_t InputImageType, image_t OutputImageType) : CHalftoneFilter(InputImageType, OutputImageType), _threshold(Threshold)
 {
-  if (GetOutputImageType() != itBW)
-    throw EHalftoneError(EHalftoneError::heUnsupportedImageType);
+   if(GetOutputImageType() != itBW)
+      throw EHalftoneError(EHalftoneError::heUnsupportedImageType);
 }
 
 CNLLHalftoning::~CNLLHalftoning()
+{ }
+
+bool CNLLHalftoning::IsProcessLineSupported()
 {
+   return false;
 }
 
-bool 
-CNLLHalftoning::IsProcessLineSupported()
+void CNLLHalftoning::ProcessLine(const buffer_t& InputLine, buffer_t& OutputLine)
+{ }
+
+void CNLLHalftoning::ProcessImage(const void* ImageData, size_t ImageWidth, size_t ImageHeight, size_t LineDelta, std::vector<buffer_t>& OutputImage)
 {
-  return false;
+   // TODO: non-implemented yet            
 }
 
-void 
-CNLLHalftoning::ProcessLine(
-  const buffer_t& InputLine, buffer_t& OutputLine)
+void CNLLHalftoning::ProcessImage(const std::vector<buffer_t>& InputImage, std::vector<buffer_t>& OutputImage)
 {
-}
-
-void 
-CNLLHalftoning::ProcessImage(
-  const void* ImageData, size_t ImageWidth, size_t ImageHeight, size_t LineDelta, std::vector<buffer_t>& OutputImage)
-{
-  // TODO: non-implemented yet            
-}
-
-
-
-void 
-CNLLHalftoning::ProcessImage(const std::vector<buffer_t>& InputImage, std::vector<buffer_t>& OutputImage)
-{
-  OutputImage.clear();
-  if (InputImage.size() == 0) return;
+   OutputImage.clear();
+   if(InputImage.size() == 0) return;
     
-  ImageWidth_   = CalcImageWidth(InputImage[0]);
-  ImageHeight_  = InputImage.size();
+   _imageWidth   = CalcImageWidth(InputImage[0]);
+   _imageHeight  = InputImage.size();
 
-  // create an empty output image
-  buffer_t EmptyLine;
-  EmptyLine.resize(ImageWidth_ / 8 + 1, 0);
-  OutputImage.resize(ImageHeight_, EmptyLine);
+   // create an empty output image
+   buffer_t EmptyLine;
+   EmptyLine.resize(_imageWidth / 8 + 1, 0);
+   OutputImage.resize(_imageHeight, EmptyLine);
     
-  // split the image to 18-pixels block
-  size_t RowCount = (InputImage.size() + 1) / 3 + 1;
-  for (size_t r = 0; r < RowCount; ++r)
-  {
-    // get coordinates of pixel #1 
-    size_t x1 = (r % 2) ? 3 : 0;
-    size_t y1 = 3 * r;
+   // split the image to 18-pixels block
+   size_t RowCount = (InputImage.size() + 1) / 3 + 1;
+   for(size_t r = 0; r < RowCount; ++r)
+   {
+      // get coordinates of pixel #1 
+      size_t x1 = (r % 2) ? 3 : 0;
+      size_t y1 = 3 * r;
 
-    // for all blocks in the row
-    // both leftest and rightest pixels of the block is 
-    while ((x1 - 3 < ImageWidth_) || (x1 + 2 < ImageWidth_))
-    {        
-      CNLLBlock Block(*this, InputImage, x1, y1, OutputImage);
+      // for all blocks in the row
+      // both leftest and rightest pixels of the block is 
+      while((x1 - 3 < _imageWidth) || (x1 + 2 < _imageWidth))
+      {        
+         CNLLBlock Block(*this, InputImage, x1, y1, OutputImage);
             
-      Block.FillBlock();
-      Block.OutputBlock();
-            
-            
-      // advance to next block
-      x1 += 6;
-    } // for blocks in the row 
-  } // for rows
+         Block.FillBlock();
+         Block.OutputBlock();
+               
+         // advance to next block
+         x1 += 6;
+      } // for blocks in the row 
+   } // for rows
 }
 
-/*
-  void 
-  CNLLHalftoning::ProcessImage(const std::vector<buffer_t>& InputImage, std::vector<buffer_t>& OutputImage)
-  {
-  OutputImage.clear();
-  if (InputImage.size() == 0) return;
-    
-  ImageWidth_   = CalcImageWidth(InputImage[0]);
-  ImageHeight_  = InputImage.size();
-
-  // create an empty output image
-  buffer_t EmptyLine;
-  EmptyLine.resize(ImageWidth_ / 8 + 1, 0);
-  OutputImage.resize(ImageHeight_, EmptyLine);
-    
-  // split the image to 18-pixels block
-  size_t x1 = 0;
-  size_t y1 = 0;
-  while (ProcessDiagonal(InputImage, OutputImage, x1, y1))
-  {
-  //x1 += 5;
-  //y1 += 1; 
-  x1 += 2;
-  y1 += 4;
-  }
-  }
-*/
-
-bool
-CNLLHalftoning::ProcessDiagonal(
-  const std::vector<buffer_t>& InputImage, std::vector<buffer_t>& OutputImage, size_t& x1, size_t& y1)
+bool CNLLHalftoning::ProcessDiagonal(const std::vector<buffer_t>& InputImage, std::vector<buffer_t>& OutputImage, size_t& x1, size_t& y1)
 {   
-  //fprintf(stderr, "ProcessDiagonal(%i, %i)\n", x1, y1);
-    
-  bool   Result           = false; 
-  bool   HasDownBlocks    = false; 
-  bool   HasUpBlocks      = false; 
-  size_t UpperDownX       = 0;
-  size_t UpperDownY       = 0;
+   bool Result = false; 
+   bool HasDownBlocks = false; 
+   bool HasUpBlocks = false; 
+   size_t UpperDownX = 0;
+   size_t UpperDownY = 0;
              
-  // go down     
-  size_t x            = x1 - 3;
-  size_t y            = y1 + 3;
-  while (true)
-  {
-    CNLLBlock Block(*this, InputImage, x, y, OutputImage);
+   // go down     
+   size_t x = x1 - 3;
+   size_t y = y1 + 3;
+   while(true)
+   {
+      CNLLBlock Block(*this, InputImage, x, y, OutputImage);
             
-    if (Block.IsInImage())
-    {
-      //fprintf(stderr, "down Block (%i, %i)\n", x, y);
-      Block.FillBlock();
-      Block.OutputBlock();
-      Result = true;
-            
-      if (!HasDownBlocks)
+      if(Block.IsInImage())
       {
-        UpperDownX = x;
-        UpperDownY = y;
-        HasDownBlocks = true;
-      }
+         Block.FillBlock();
+         Block.OutputBlock();
+         Result = true;
             
-      x -= 3;
-      y += 3;
-    }    
-    else
-      break;
-  } // go down    
+         if(!HasDownBlocks)
+         {
+            UpperDownX = x;
+            UpperDownY = y;
+            HasDownBlocks = true;
+         }
+            
+         x -= 3;
+         y += 3;
+      }    
+      else
+         break;
+   } // go down    
     
-    // go up     
-  x   = x1;
-  y   = y1;
-  while (true)
-  {
-    CNLLBlock Block(*this, InputImage, x, y, OutputImage);
+   // go up     
+   x = x1;
+   y = y1;
+   while(true)
+   {
+      CNLLBlock Block(*this, InputImage, x, y, OutputImage);
             
-    if (Block.IsInImage())
-    {
-      //fprintf(stderr, "up Block (%i, %i)\n", x, y);
-
-      Block.FillBlock();
-      Block.OutputBlock();
-      Result = true;
-      HasUpBlocks = true;
+      if(Block.IsInImage())
+      {
+         Block.FillBlock();
+         Block.OutputBlock();
+         Result = true;
+         HasUpBlocks = true;
             
-      x1   = x;
-      y1   = y;
-      x += 3;
-      y -= 3;
-    }    
-    else
-      break;
-  } // go up    
+         x1 = x;
+         y1 = y;
+         x += 3;
+         y -= 3;
+      }    
+      else
+         break;
+   } // go up    
 
-  if (Result && !HasUpBlocks)
-  {
-    x1 = UpperDownX;
-    y1 = UpperDownY;
-  }
-  //fprintf(stderr, "ProcessDiagonal returns (%i, %i)\n", x1, y1);
+   if(Result && !HasUpBlocks)
+   {
+      x1 = UpperDownX;
+      y1 = UpperDownY;
+   }
 
-  return Result;
+   return Result;
 }
 
-int 
-CNLLHalftoning::GetThreshold()
+int CNLLHalftoning::GetThreshold()
 {
-  return Threshold_;
+   return _threshold;
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Block class methods
 ////////////////////////////////////////////////////////////////////////
 
-CNLLBlock::CNLLBlock(
-  CNLLHalftoning& Parent, const CHalftoneFilter::image_buffer_t& Image, int x1, int y1, CHalftoneFilter::image_buffer_t& OutputImage):
-  Parent_(Parent), Image_(Image), OutputImage_(OutputImage), x1_(x1), y1_(y1), Pixels_(18, 0), Classes_(18, 0)
+CNLLBlock::CNLLBlock(CNLLHalftoning& Parent, const CHalftoneFilter::image_buffer_t& Image, int x1, int y1, CHalftoneFilter::image_buffer_t& OutputImage) : _parent(Parent), _image(Image), _outputImage(OutputImage), _x1(x1), _y1(y1), _pixels(18, 0), _classes(18, 0)
 {
-  ImageWidth_   = Parent_.CalcImageWidth(Image_[0]);
-  ImageHeight_  = Image_.size();
+   _imageWidth = _parent.CalcImageWidth(_image[0]);
+   _imageHeight = _image.size();
 }
 
-void
-CNLLBlock::FillBlock()
+void CNLLBlock::FillBlock()
 {
-  for (size_t i = 0; i < Pixels_.size(); ++i)
-    FillPixel(i + 1, x1_ + PixelOffsets_[i].x, y1_ + PixelOffsets_[i].y);
+   for(size_t i = 0; i < _pixels.size(); ++i)
+      FillPixel(i + 1, _x1 + _pixelOffsets[i].x, _y1 + _pixelOffsets[i].y);
         
-  ReduceClasses();
-
+   ReduceClasses();
 }
 
-void 
-CNLLBlock::ReduceClasses()
+void CNLLBlock::ReduceClasses()
+{ }
+
+void CNLLBlock::ReduceClasses(size_t ClassFrom, size_t ClassTo)
 {
-  //ReduceClasses(1, 2);
-  //ReduceClasses(5, 4);
+   for(size_t i = 0; i < 8; ++i)
+   {
+      if((_classes[_squares[i].p1 - 1] == ClassFrom) && (_classes[_squares[i].p2 - 1] == ClassFrom) && 
+         (_classes[_squares[i].p3 - 1] == ClassFrom) && (_classes[_squares[i].p4 - 1] == ClassFrom))
+      {
+         _classes[_squares[i].p1 - 1] = ClassTo;
+         _classes[_squares[i].p3 - 1] = ClassTo;
+      }
+   }
 }
 
-void 
-CNLLBlock::ReduceClasses(size_t ClassFrom, size_t ClassTo)
+void CNLLBlock::FillPixel(size_t PixelNo, int x, int y)
 {
-  for (size_t i = 0; i < 8; ++i)
-  {
-    if ((Classes_[Squares_[i].p1 - 1] == ClassFrom)
-    && (Classes_[Squares_[i].p2 - 1] == ClassFrom)
-    && (Classes_[Squares_[i].p3 - 1] == ClassFrom)
-    && (Classes_[Squares_[i].p4 - 1] == ClassFrom))
-    {
-      Classes_[Squares_[i].p1 - 1] = ClassTo;
-      Classes_[Squares_[i].p3 - 1] = ClassTo;
-    }
-  }
-}
-
-void 
-CNLLBlock::FillPixel(size_t PixelNo, int x, int y)
-{
-  // fill pixels
-  Pixels_[PixelNo - 1] = GetPixelGray(x, y);
+   // fill pixels
+   _pixels[PixelNo - 1] = GetPixelGray(x, y);
     
-  // fill classes
-  int NLL = GetNLL(x, y);
-  int Threshold = Parent_.GetThreshold();
+   // fill classes
+   int NLL = GetNLL(x, y);
+   int Threshold = _parent.GetThreshold();
   
-  // we added to new classes to those described in the papers
-  // 0 - (same as 1) - it is set for black pixels, those should remeined black
-  // 6 - (same as 5) - it is set for white pixels, those should remeined white
-      
-  if (Pixels_[PixelNo - 1] == 0)
-    Classes_[PixelNo - 1] = 0;
-  else if (Pixels_[PixelNo - 1] == 255)
-    Classes_[PixelNo - 1] = 6;
-  else // as in papers
-    if (NLL < -Threshold)
-      Classes_[PixelNo - 1] = 1;
-    else if (NLL > Threshold)
-      Classes_[PixelNo - 1] = 5;
-    else    
-      Classes_[PixelNo - 1] = 3;
-        
+   // we added to new classes to those described in the papers
+   // 0 - (same as 1) - it is set for black pixels, those should remeined black
+   // 6 - (same as 5) - it is set for white pixels, those should remeined white
+   if(_pixels[PixelNo - 1] == 0)
+      _classes[PixelNo - 1] = 0;
+   else if (_pixels[PixelNo - 1] == 255)
+      _classes[PixelNo - 1] = 6;
+   else // as in papers
+      if(NLL < -Threshold)
+         _classes[PixelNo - 1] = 1;
+      else if(NLL > Threshold)
+         _classes[PixelNo - 1] = 5;
+      else    
+         _classes[PixelNo - 1] = 3;
 }
 
-int 
-CNLLBlock::GetPixelGray(int x, int y)
+int CNLLBlock::GetPixelGray(int x, int y)
 {
-  if (IsInImage(x, y))
-  {
-    byte R, G, B;
-    Parent_.ExtractRGB(Image_[y], x, R, G, B);
-    return Parent_.RGBToGrayScale(R, G, B);
-  }
-  else
-    return 255; // white
+   if(IsInImage(x, y))
+   {
+      byte R, G, B;
+      _parent.ExtractRGB(_image[y], x, R, G, B);
+      return _parent.RGBToGrayScale(R, G, B);
+   }
+   else
+      return 255; // white
 }
 
-int 
-CNLLBlock::GetNLL(int x, int y)
+int CNLLBlock::GetNLL(int x, int y)
 {
-  int A = 
-    GetPixelGray(x, y)
-    - (  GetPixelGray(x - 1, y - 1) 
-    + GetPixelGray(x + 1, y - 1) 
-    + GetPixelGray(x - 1, y + 1) 
-    + GetPixelGray(x + 1, y + 1)) / 4;
+   int A = GetPixelGray(x, y) - (GetPixelGray(x - 1, y - 1) + GetPixelGray(x + 1, y - 1) + GetPixelGray(x - 1, y + 1) + GetPixelGray(x + 1, y + 1)) / 4;
     
-  int B = 
-    GetPixelGray(x, y)
-    - (  GetPixelGray(x - 0, y - 1) 
-    + GetPixelGray(x + 0, y + 1) 
-    + GetPixelGray(x - 1, y + 0) 
-    + GetPixelGray(x + 1, y + 0)) / 4;
+   int B = GetPixelGray(x, y) - (GetPixelGray(x - 0, y - 1) + GetPixelGray(x + 0, y + 1) + GetPixelGray(x - 1, y + 0) + GetPixelGray(x + 1, y + 0)) / 4;
             
-  if ((A > 0) && (B > 0))
-    return std::min(A, B);
+   if((A > 0) && (B > 0))
+      return std::min(A, B);
 
-  if ((A < 0) && (B < 0))
-    return -std::min(abs(A), abs(B));
+   if((A < 0) && (B < 0))
+      return -std::min(abs(A), abs(B));
         
-  return 0;    
+   return 0;    
 }    
 
-
-size_t 
-CNLLBlock::GetBlockIntenseValue()
+size_t CNLLBlock::GetBlockIntenseValue()
 {
-  size_t Intense = 128;
-  for (size_t i = 0; i < Pixels_.size(); ++i)
-    Intense += Pixels_[i];
+   size_t Intense = 128;
+   for(size_t i = 0; i < _pixels.size(); ++i)
+      Intense += _pixels[i];
         
-  size_t result =  18 - std::min(Intense / 255, size_t(18));
-  //fprintf(stderr, "GetBlockIntenseValue() = %d\n", result);
-  return result; 
+   size_t result =  18 - std::min(Intense / 255, size_t(18));
+
+   return result; 
 }
 
-void 
-CNLLBlock::OutputBlock()
+void CNLLBlock::OutputBlock()
 {
-  size_t RemainedPixels = GetBlockIntenseValue();
-  size_t PixelCount       = 0;
+   size_t RemainedPixels = GetBlockIntenseValue();
+   size_t PixelCount = 0;
     
-  // output all pixels for class 0
-  PixelCount = OutputClass(0, 18);
+   // output all pixels for class 0
+   PixelCount = OutputClass(0, 18);
     
-  if (PixelCount < RemainedPixels)
-  {
-    RemainedPixels -= PixelCount;
-    RemainedPixels -= OutputClass(1, RemainedPixels);
-    RemainedPixels -= OutputClass(2, RemainedPixels);
-    RemainedPixels -= OutputClass(3, RemainedPixels);
-    RemainedPixels -= OutputClass(4, RemainedPixels);
-  }
+   if(PixelCount < RemainedPixels)
+   {
+      RemainedPixels -= PixelCount;
+      RemainedPixels -= OutputClass(1, RemainedPixels);
+      RemainedPixels -= OutputClass(2, RemainedPixels);
+      RemainedPixels -= OutputClass(3, RemainedPixels);
+      RemainedPixels -= OutputClass(4, RemainedPixels);
+   }
 }
 
-size_t
-CNLLBlock::OutputClass(size_t ClassNo, size_t MaxPixelsToOutput)
+size_t CNLLBlock::OutputClass(size_t ClassNo, size_t MaxPixelsToOutput)
 {
-  //fprintf(stderr, "OutputClass(%i, %i)\n", ClassNo, MaxPixelsToOutput);
+   if(MaxPixelsToOutput == 0)
+      return 0;
     
-  if (MaxPixelsToOutput == 0)
-    return 0;
-    
-  std::vector<size_t> Pixels;
+   std::vector<size_t> Pixels;
 
-  // collect all pixels of a class    
-  for (size_t i = 0; i < Classes_.size(); ++i)
-    if (Classes_[i] == ClassNo)
-      Pixels.push_back(i + 1);
-            
-  // sort pixels, so output it in order            
-  //std::sort(Pixels.begin(), Pixels.end());
-  //std::random_shuffle(Pixels.begin(), Pixels.end());
+   // collect all pixels of a class    
+   for(size_t i = 0; i < _classes.size(); ++i)
+      if(_classes[i] == ClassNo)
+         Pixels.push_back(i + 1);
+              
+   // output pixels
+   size_t Result = 0;
+   for(size_t i = 0; i < Pixels.size(); ++i)
+      if(Result < MaxPixelsToOutput)
+      {
+         OutputPixel(Pixels[i]);
+         ++Result;
+      }
+      else
+         break;
     
-  // output pixels
-  size_t Result = 0;
-  for (size_t i = 0; i < Pixels.size(); ++i)
-    if (Result < MaxPixelsToOutput)
-    {
-      OutputPixel(Pixels[i]);
-      ++Result;
-    }
-    else
-      break;
-    
-  return Result;        
+   return Result;        
 }
 
-void
-CNLLBlock::OutputPixel(size_t PixelNo)
+void CNLLBlock::OutputPixel(size_t PixelNo)
 {
-  OutputPixel(x1_ + PixelOffsets_[PixelNo - 1].x, y1_ + PixelOffsets_[PixelNo - 1].y);
+   OutputPixel(_x1 + _pixelOffsets[PixelNo - 1].x, _y1 + _pixelOffsets[PixelNo - 1].y);
 }
 
-void
-CNLLBlock::OutputPixel(int x, int y)
+void CNLLBlock::OutputPixel(int x, int y)
 {
-  if (IsInImage(x, y))
-    Parent_.SetPixelBW(OutputImage_[y], x, 1);
+   if(IsInImage(x, y))
+      _parent.SetPixelBW(_outputImage[y], x, 1);
 }
 
-bool
-CNLLBlock::IsInImage()
+bool CNLLBlock::IsInImage()
 {
-  for (size_t i = 0; i < Pixels_.size(); ++i)
-    if (IsInImage(x1_ + PixelOffsets_[i].x, y1_ + PixelOffsets_[i].y))
-      return true;
+   for(size_t i = 0; i < _pixels.size(); ++i)
+      if(IsInImage(_x1 + _pixelOffsets[i].x, _y1 + _pixelOffsets[i].y))
+         return true;
   
-  return false;
+   return false;
 }
 
-bool
-CNLLBlock::IsInImage(int x, int y)
+bool CNLLBlock::IsInImage(int x, int y)
 {
-  return (x >= 0) && (size_t(x) < ImageWidth_) && (y >= 0) && (size_t(y) < ImageHeight_);
+   return (x >= 0) && (size_t(x) < _imageWidth) && (y >= 0) && (size_t(y) < _imageHeight);
 }
 
-
-} // namespace
-
-/*
- * End of "$Id: NonLinearLaplacianHalftoning.cpp 4759 2008-06-19 19:02:27Z vbuzuev $".
- */
+} 

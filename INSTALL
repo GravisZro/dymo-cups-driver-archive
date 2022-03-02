@@ -6,10 +6,11 @@ I. Install Source Package
 =========================
 
 To compile and install source package you will need:
-  - recent C++ compiler. We used gcc ver. 3.3.5 & 4.0.1
+  - recent C++ compiler
   - installed CUPS *.h files (cups/cups.h, cups/raster.h)
-  - installed CUPS libraries (libcups, libcupsimage)
-  
+  - installed CUPS libraries (libcups2-dev, libcupsimage2-dev)
+  - installed Autotools (automake)
+
 To compile sources run follow commands from the package directory:
 ./configure
 make

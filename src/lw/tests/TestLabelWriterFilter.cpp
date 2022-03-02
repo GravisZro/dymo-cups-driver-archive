@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: TestLabelWriterFilter.cpp 4759 2008-06-19 19:02:27Z vbuzuev $
+// $Id: TestLabelWriterFilter.cpp 17858 2012-04-23 18:20:41Z pineichen $
 
 // DYMO LabelWriter Drivers
 // Copyright (C) 2008 Sanford L.P.
@@ -32,77 +32,77 @@ using namespace DymoPrinterDriver;
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION(LabelWriterFilterTest);
 
-void 
+void
 LabelWriterFilterTest::setUp()
 {
   ppd_ = ppdOpenFile("../../../ppd/lwtt.ppd");
   CPPUNIT_ASSERT(ppd_ != NULL);
 
   ppdMarkDefaults(ppd_);
-    
+
   Driver_ = new CLabelWriterDriverTwinTurbo(Env_);
   LM_ = new CDummyLanguageMonitor(Env_);
 }
 
 
-void 
+void
 LabelWriterFilterTest::tearDown()
 {
-  ppdClose(ppd_);    
+  ppdClose(ppd_);
   delete Driver_;
   delete LM_;
 }
 
-void 
+void
 LabelWriterFilterTest::testDensity()
 {
   ppdMarkOption(ppd_, "DymoPrintDensity", "Light");
   CDriverInitializerLabelWriter::ProcessPPDOptions(*Driver_, *LM_, ppd_);
   CPPUNIT_ASSERT_EQUAL(CLabelWriterDriver::pdLow, Driver_->GetDensity());
-    
+
   ppdMarkOption(ppd_, "DymoPrintDensity", "Medium");
   CDriverInitializerLabelWriter::ProcessPPDOptions(*Driver_, *LM_, ppd_);
   CPPUNIT_ASSERT_EQUAL(CLabelWriterDriver::pdMedium, Driver_->GetDensity());
-    
+
   ppdMarkOption(ppd_, "DymoPrintDensity", "Normal");
   CDriverInitializerLabelWriter::ProcessPPDOptions(*Driver_, *LM_, ppd_);
   CPPUNIT_ASSERT_EQUAL(CLabelWriterDriver::pdNormal, Driver_->GetDensity());
-    
+
   ppdMarkOption(ppd_, "DymoPrintDensity", "Dark");
   CDriverInitializerLabelWriter::ProcessPPDOptions(*Driver_, *LM_, ppd_);
   CPPUNIT_ASSERT_EQUAL(CLabelWriterDriver::pdHigh, Driver_->GetDensity());
 }
 
-void 
+void
 LabelWriterFilterTest::testQuality()
 {
   ppdMarkOption(ppd_, "DymoPrintQuality", "Text");
   CDriverInitializerLabelWriter::ProcessPPDOptions(*Driver_, *LM_, ppd_);
   CPPUNIT_ASSERT_EQUAL(CLabelWriterDriver::pqText, Driver_->GetQuality());
-    
+
   ppdMarkOption(ppd_, "DymoPrintQuality", "Graphics");
   CDriverInitializerLabelWriter::ProcessPPDOptions(*Driver_, *LM_, ppd_);
   CPPUNIT_ASSERT_EQUAL(CLabelWriterDriver::pqBarcodeAndGraphics, Driver_->GetQuality());
 }
 
-void 
+void
 LabelWriterFilterTest::testRoll()
 {
   ppdMarkOption(ppd_, "InputSlot", "Auto");
   CDriverInitializerLabelWriterTwinTurbo::ProcessPPDOptions(*Driver_, *LM_, ppd_);
   CPPUNIT_ASSERT_EQUAL(CLabelWriterDriverTwinTurbo::rtAuto, Driver_->GetRoll());
-    
+
   ppdMarkOption(ppd_, "InputSlot", "Left");
   CDriverInitializerLabelWriterTwinTurbo::ProcessPPDOptions(*Driver_, *LM_, ppd_);
   CPPUNIT_ASSERT_EQUAL(CLabelWriterDriverTwinTurbo::rtLeft, Driver_->GetRoll());
-    
+
   ppdMarkOption(ppd_, "InputSlot", "Right");
   CDriverInitializerLabelWriterTwinTurbo::ProcessPPDOptions(*Driver_, *LM_, ppd_);
   CPPUNIT_ASSERT_EQUAL(CLabelWriterDriverTwinTurbo::rtRight, Driver_->GetRoll());
 }
 
 /*
- * End of "$Id: TestLabelWriterFilter.cpp 4759 2008-06-19 19:02:27Z vbuzuev $".
+ * End of "$Id: TestLabelWriterFilter.cpp 17858 2012-04-23 18:20:41Z pineichen $".
  */
 
 
